@@ -1329,7 +1329,8 @@
         // attributes as well as properties: iOS reads the attributes when deciding whether a video may play inline
         el.setAttribute('muted', ''); el.setAttribute('playsinline', ''); el.setAttribute('webkit-playsinline', '');
         el.muted = true; el.loop = true; el.playsInline = true; el.controls = true; el.preload = 'auto';
-        el.poster = v0.poster; el.src = v0.currentSrc || v0.src;
+        // the screens play a lighter copy; full size gets the sharp original
+        el.poster = v0.poster; el.src = (v0.currentSrc || v0.src).replace(/-sd\.mp4(?=$|\?)/, '.mp4');
         const t = v0.currentTime || 0;
         // start playing inside the tap itself: a play() that comes from the tap is allowed even when the phone blocks
         // autoplay (iPhone Low Power Mode, data saver); the moment it carries on from is set once the length is known
