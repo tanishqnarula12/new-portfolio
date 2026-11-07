@@ -1,0 +1,5 @@
+:HL["/_next/static/chunks/22brrvtifdf2p.css","style"]
+:HL["/_next/static/chunks/0xe22lsjlko7w.css","style"]
+:HL["https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Playfair+Display:ital,wght@1,400;1,600&family=Caveat:wght@500;600;700&family=Onest:wght@300;400;500;600;700;800;900&display=swap","style"]
+1:[["children",{"s":"__PAGE__","h":160}]]
+0:{"b":"RlOdAbPpOtlxFIB_u5cHp","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

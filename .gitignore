@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+*.log
+
+# local design tooling, not part of the site
+.agents/
+.claude/
+skills-lock.json
+
+# original photos (the site uses the processed versions in images/)
+my new photo.png
+my-avatar-2.png
