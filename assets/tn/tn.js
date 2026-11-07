@@ -784,8 +784,8 @@
   if (IS_HOME && !EMBED) safe('story', initStory);
 
   /* ================================================================== the story, arriving as you read it */
-  // The year spins up from 0000 the first time you reach it. Each time the chapter changes, the four digits tick
-  // one after another, the date under them slides up and settles, the counter rolls and the bar glides.
+  // Each time the chapter changes, the date under the year slides up and settles, the counter rolls and the bar
+  // glides; the year digits keep the site's own roll.
   // Each chapter comes in when you reach it: its date, then the title, the company and each line, rising out of
   // a soft blur. The heading gets the gold light the footer has. React redraws parts of this while you scroll, so
   // everything hangs on data attributes and on animations React never sees.
@@ -815,32 +815,12 @@
       if (sec.getBoundingClientRect().bottom < innerHeight * 0.6) $$('#about .ch:not([data-tn-in])').forEach(ch => ch.setAttribute('data-tn-in', ''));
     }, { passive: true });
 
-    // the year: the first time it is on screen it spins up from 0000, one digit after another
-    const yr = $('.story__yr', sec);
-    if (yr && !still) {
-      const yo = new IntersectionObserver(es => {
-        if (!es.some(e => e.isIntersecting)) return;
-        yo.disconnect();
-        $$('.dg__c', yr).forEach((c, k) => {
-          const d = c.style.getPropertyValue('--d') || '0';
-          c.style.transition = 'none'; c.style.setProperty('--d', '0'); void c.offsetHeight;
-          c.style.transition = `transform 1.25s cubic-bezier(.65,0,.2,1) ${k * 110}ms`;
-          c.style.setProperty('--d', d);
-          setTimeout(() => { c.style.transition = ''; }, 1500 + k * 110);
-        });
-      }, { threshold: 0.4 });
-      yo.observe(yr);
-    }
-
-    // a new chapter: the digits tick, the date settles, the counter rolls
+    // a new chapter: the date settles and the counter rolls (the year keeps the site's own roll)
     let lastCh = sec.getAttribute('data-ch');
     new MutationObserver(() => {
       const ch = sec.getAttribute('data-ch');
       if (ch === lastCh) return;
       lastCh = ch;
-      $$('.dg', sec).forEach((g, k) => play(g,
-        [{ transform: 'translateY(-.07em)', opacity: .35, filter: 'blur(3px)' }, { transform: 'none', opacity: 1, filter: 'blur(0)' }],
-        { duration: 620, delay: k * 55, easing: soft, fill: 'backwards' }));
       play($('.story__when', sec),
         [{ opacity: 0, transform: 'translateY(.6em)', letterSpacing: '.32em' }, { opacity: 1, transform: 'none', letterSpacing: '.12em' }],
         { duration: 640, easing: soft });
