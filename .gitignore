@@ -10,3 +10,9 @@ skills-lock.json
 # original photos (the site uses the processed versions in images/)
 my new photo.png
 my-avatar-2.png
+
+# raw project recordings and screenshots (the site serves the web-encoded copies in media/work/)
+web dev/
+ai:automation/
+ui:ux/
+client work/

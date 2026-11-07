@@ -19,6 +19,32 @@ I'm an IT student, software developer and freelance designer based in Jaipur, In
 - **B.Tech in Information Technology**, SKIT, Jaipur · Degree (Currently pursuing): Studying information technology at Swami Keshvanand Institute of Technology, Jaipur. Building web, AI and design projects alongside my studies.
 - **Freelance Graphic Designer**, Freelance · Graphic Design (2024 — 2025): Worked on freelance creative projects involving graphic design and digital creatives. Delivered branding and visual communication work for clients.
 
+## Projects
+
+### AI & Automation (https://tanishqnarula.dev/app-developer/)
+- **Xenio** (Personal AI assistant · Flagship project): Intelligence beyond conversation. A personal AI assistant and agentic operating system that connects AI to real work on your computer. Give Xenio a goal in plain language: its orchestration engine breaks it into tasks, delegates them to specialised agents, coordinates their work and uses your apps and system tools until it is done. Capabilities: Multi-agent orchestration, Persistent memory, Voice & multilingual, Keyboard & mouse control, Visual understanding, GitHub & productivity tools.
+- **AscendAI** (AI productivity app): Goals, habits and an AI that holds you to account. Long-term goals, daily tasks and a weekly execution board in one dashboard. AscendAI tracks streaks and consistency, warns about burnout risk, writes AI summaries you can export as PDF, and runs an honest reality check in the tone you pick, from supportive to blunt.
+- **WhatsApp Automation** (Automation · Google Apps Script): Messages that go out on their own, on time. A Google Apps Script workflow that sends WhatsApp messages to a list of contacts automatically and on schedule, so routine updates and reminders go out without anyone typing them by hand.
+
+### Web Development (https://tanishqnarula.dev/web-developer/)
+- **Smart Edu** (Web app · Full-stack): School management, with an AI assistant for every role. Attendance, marks, assignments, timetables, fees and complaints in one platform, with separate dashboards for administrators, teachers, students and parents. Analytics flag the students at risk, and the built-in AI assistant answers questions while respecting exactly what each role is allowed to see.
+- **Policy Analyzer** (Internal tool · Fintness Finserv): Keep, pause or surrender? The numbers, side by side. Advisors enter an insurance policy's details, bonus rates and surrender values. The tool compares continuing the policy, making it paid-up, surrendering it or moving the money into mutual funds, recommends the strongest option with maturity values, tax and IRR worked out, and exports it all as a PDF.
+- **Insurance Proposal Generator** (Internal tool · Fintness Finserv): Client details in, a branded proposal out. Builds medical, term and accident insurance proposals. Details can be auto-filled from an uploaded policy PDF, family members and base or top-up covers are added step by step, and the finished proposal is generated as a branded document and saved to Google Sheets.
+- **MoM Generator** (Internal tool · Fintness Finserv): Every client meeting, documented the same way. An eight-step form that walks an advisor through a client meeting: basic details, client profile, investments, previous to-dos, agenda, discussion, new action items and follow-up. At the end it generates a clean, print-ready minutes-of-meeting document.
+- **Attendance Checker** (Student tool · SKIT Jaipur): Paste your college report. Let the system handle the math. Built for SKIT students. Paste the attendance table from the college portal and it reads every subject, shows overall and per-subject attendance against your target, and tells you how many classes you can safely skip, or how many you need to attend to get back above it.
+
+### UI/UX Design (https://tanishqnarula.dev/ui-ux-designer/)
+- **Fintness Finserv** (Website · Fintness Finserv): The website for a financial advisory firm. The public website for Fintness Finserv at fintness.in: services, the planning process, risk mitigation, the team behind the firm and a contact page, laid out so financial planning feels clear and approachable.
+- **Site Manager** (Mobile app · Dashboard design): A construction site's whole day on one screen. A mobile dashboard for site managers: expenses, machinery, materials and active tasks at a glance, quick actions to log work, and alerts that flag usage spikes, rate deviations and supplier issues early. An AI assistant is one tap away in the tab bar.
+- **Fuzzylogy** (Website · Fitness club): A high-energy website for a fitness club. A landing page for a gym brand: a bold hero with key numbers, training programmes, certified trainers and facilities, member reviews, three membership plans and a final push to join, all in a dark, neon-green style.
+- **Study Companion** (Mobile app · EdTech): A study dashboard for Class 10 students, with an AI tutor. Accuracy, topics done, study time and the weakest topic at a glance, a daily motivation card, recent activity and quick links to sample papers, NCERT books and previous years' papers. When a student is stuck, the AI tutor is one tap away.
+- **NovaTech** (E-commerce · Gadget store): A dark, product-first store for future gadgets. An online store for headphones, earbuds and smartwatches: a bold hero, product cards with Buy now and Add to cart, customer reviews, a newsletter sign-up and a login screen, all in one consistent dark theme.
+- **Puma Concept** (Concept · Product showcase): An interactive sneaker showcase. A concept landing page for Puma sneakers. The logo animates in, each shoe swings in on an orbit, and the whole page recolours to match the sneaker on show.
+- **The Wildlife** (Homepage · Concept): A cinematic homepage built around one photograph. A homepage concept for a wildlife site: oversized type layered behind the elephant, a translucent navigation bar and a quiet search field, so the photograph does the talking.
+
+### Client Work (https://tanishqnarula.dev/graphic-designer/)
+- **Fit 'N' Blaze** (Client project · Gym & fitness studio): Website and member platform for a Jaipur gym. A website and member platform for an MMA, gym, yoga, cardio and dance studio in Jaipur. Members get accounts, subscription plans, workout tutorials and online payments through Razorpay, alongside the studio's programmes, facility, in-house health café, pricing and gallery.
+
 ## Contact
 - WhatsApp: +91 63782 11535 (https://wa.me/916378211535)
 - Email: tanishqnarula60@gmail.com
@@ -28,10 +54,10 @@ I'm an IT student, software developer and freelance designer based in Jaipur, In
 
 ## Pages
 - [https://tanishqnarula.dev/](https://tanishqnarula.dev/): Home: who Tanishq is, the four kinds of work, his story and how to get in touch.
-- [https://tanishqnarula.dev/web-developer/](https://tanishqnarula.dev/web-developer/): Web development: websites, web apps and business software.
-- [https://tanishqnarula.dev/app-developer/](https://tanishqnarula.dev/app-developer/): AI & automation: intelligent applications and automated workflows.
-- [https://tanishqnarula.dev/ui-ux-designer/](https://tanishqnarula.dev/ui-ux-designer/): UI/UX design: user flows, wireframes and interactive prototypes.
-- [https://tanishqnarula.dev/graphic-designer/](https://tanishqnarula.dev/graphic-designer/): Client work: freelance graphic design, social media creatives and branding.
+- [https://tanishqnarula.dev/web-developer/](https://tanishqnarula.dev/web-developer/): Web development: Smart Edu, plus internal tools built at Fintness Finserv (Policy Analyzer, Insurance Proposal Generator, MoM Generator) and the Attendance Checker.
+- [https://tanishqnarula.dev/app-developer/](https://tanishqnarula.dev/app-developer/): AI & automation: Xenio (personal AI assistant and agentic operating system), AscendAI and WhatsApp automation.
+- [https://tanishqnarula.dev/ui-ux-designer/](https://tanishqnarula.dev/ui-ux-designer/): UI/UX design: websites, an e-commerce store, mobile app dashboards and interactive concepts.
+- [https://tanishqnarula.dev/graphic-designer/](https://tanishqnarula.dev/graphic-designer/): Client work: Fit 'N' Blaze, a gym website and member platform with subscriptions and Razorpay payments.
 - [https://tanishqnarula.dev/photographer/](https://tanishqnarula.dev/photographer/): About Tanishq Narula.
 - [https://tanishqnarula.dev/contact/](https://tanishqnarula.dev/contact/): Contact: start a project on WhatsApp or by email.
 - [https://tanishqnarula.dev/privacy/](https://tanishqnarula.dev/privacy/): Privacy policy.

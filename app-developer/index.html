@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>/* Onest loaded via Google Fonts */</style>
 
-<meta name="description" content="AI automation freelancer in India: intelligent applications and automated workflows built by Tanishq Narula, a software developer from Jaipur." />
+<meta name="description" content="AI and automation work by Tanishq Narula, freelance developer in Jaipur: Xenio, a personal AI assistant and agentic operating system, the AscendAI goal tracker and WhatsApp automation with Google Apps Script." />
 <meta name="theme-color" content="#1A1818" />
 <script>if(/[?&]embed\b/.test(location.search))document.documentElement.classList.add('embed');try{if(localStorage.getItem('tn-mode')==='dark')document.documentElement.dataset.mode='dark'}catch(e){}</script>
 <style>
@@ -24,7 +24,7 @@
   --color-15: #FBFAF8;
   --color-1: #1A1818;
   --color-2: #5C4242;
-  --color-4: #7A8670;
+  --color-4: #A4552C;
   --color-8: #D5CDCA;
   --color-5: #7FB069;
   --color-10: #E8E4E0;
@@ -82,40 +82,33 @@ h1{font-size:clamp(44px,7vw,84px);font-weight:600;letter-spacing:-.025em;line-he
 .note{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:rgba(var(--fg-rgb),.68)}
 .note::before{content:"";width:7px;height:7px;border-radius:50%;background:#7a8670}
 
-/* ---------- the phone: an iPhone turned slightly side-on ---------- */
-.card__in{--w:clamp(210px,calc((100svh - var(--nav-h,72px) - 240px) * .5),320px);--sw:calc(var(--w) * .916)}
-.stage{position:relative;perspective:1600px;perspective-origin:50% 45%;display:grid;place-items:center;padding:6px 0 34px}
-.phone{position:relative;width:var(--w);transform-style:preserve-3d;transform:rotateY(-21deg) rotateX(6deg) rotateZ(1.2deg);transition:transform 1.2s cubic-bezier(.16,1,.3,1)}
-.card.flip .phone{transform:rotateY(21deg) rotateX(6deg) rotateZ(-1.2deg)}
-.card:hover .phone{transform:rotateY(-12deg) rotateX(3deg) rotateZ(.5deg)}
-.card.flip:hover .phone{transform:rotateY(12deg) rotateX(3deg) rotateZ(-.5deg)}
-/* titanium frame, then the black bezel, then the screen */
-.phone__body{position:relative;transform-style:preserve-3d;padding:calc(var(--w) * .012);border-radius:calc(var(--w) * .168);
-  background:linear-gradient(145deg,#e4e0db 0%,#8f8a85 22%,#5b5753 48%,#9d9893 74%,#e6e2dd 100%);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),0 50px 80px -40px rgba(26,24,24,.55),0 18px 30px -18px rgba(26,24,24,.35)}
-html[data-mode="dark"] .phone__body{box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),0 50px 80px -40px rgba(0,0,0,.9),0 18px 30px -18px rgba(0,0,0,.7)}
-/* the frame's thickness: an edge you see because the phone is turned */
-.phone__body::before{content:"";position:absolute;top:calc(var(--w) * .16);bottom:calc(var(--w) * .16);right:0;width:calc(var(--w) * .05);transform-origin:100% 50%;transform:rotateY(-90deg);
-  background:linear-gradient(180deg,#cfcac5,#8c8783 30%,#6d6965 70%,#b9b4af)}
-.card.flip .phone__body::before{right:auto;left:0;transform-origin:0 50%;transform:rotateY(90deg)}
-.phone__btn{position:absolute;width:calc(var(--w) * .014);border-radius:2px;background:linear-gradient(90deg,#6e6a66,#bdb8b3);transform:translateZ(-1px)}
-.phone__btn.l{left:calc(var(--w) * -.008)}.phone__btn.r{right:calc(var(--w) * -.008)}
-.phone__screen{position:relative;box-sizing:content-box;aspect-ratio:1180/2556;border:calc(var(--w) * .03) solid #050505;border-radius:calc(var(--w) * .156);overflow:hidden;background:#141414 center/cover no-repeat;transform:translateZ(.5px)}
-.phone__screen video{border-radius:calc(var(--w) * .126);position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.phone__screen::after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(118deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.03) 30%,transparent 44%)}
-.island{position:absolute;left:34%;top:calc(var(--sw) * .028);width:32%;aspect-ratio:126/37;border-radius:999px;background:#000}
-.sbar{position:absolute;left:0;right:0;top:0;height:calc(var(--sw) * .15);display:flex;align-items:center;justify-content:space-between;
-  padding:0 calc(var(--sw) * .085) 0 calc(var(--sw) * .115);color:#fff;font-size:calc(var(--sw) * .043);font-weight:600;letter-spacing:-.01em;pointer-events:none}
-.sbar svg{height:calc(var(--sw) * .036);width:auto;display:block}
-.sbar span:last-child{display:flex;align-items:center;gap:calc(var(--sw) * .014)}
-.stage::after{content:"";position:absolute;left:50%;bottom:10px;width:calc(var(--w) * 1.05);height:26px;transform:translateX(-50%);border-radius:50%;
-  background:radial-gradient(closest-side,rgba(0,0,0,.3),transparent);filter:blur(7px);z-index:-1}
+/* ---------- the desktop: a slightly side-on monitor ---------- */
+.stage{position:relative;perspective:1900px;perspective-origin:50% 40%;padding:10px 0 28px}
+.mon{position:relative;transform-style:preserve-3d;transform:rotateY(-17deg) rotateX(4deg);transition:transform 1.2s cubic-bezier(.16,1,.3,1);margin-inline:auto;width:100%;max-width:720px}
+.card.flip .mon{transform:rotateY(17deg) rotateX(4deg)}
+.card:hover .mon{transform:rotateY(-12deg) rotateX(3deg)}
+.card.flip:hover .mon{transform:rotateY(12deg) rotateX(3deg)}
+.mon__body{position:relative;transform-style:preserve-3d;--mp:clamp(5px,1.3vw,11px);padding:var(--mp);border-radius:calc(var(--mp) + 8px);background:linear-gradient(160deg,#2a2828,#0d0c0c 60%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.12)}
+/* the monitor's thickness: an edge you see because it is turned */
+.mon__body::before{content:"";position:absolute;top:10px;bottom:10px;right:0;width:22px;transform-origin:100% 50%;transform:rotateY(-90deg);
+  background:linear-gradient(180deg,#bdb9b5,#8d8985 50%,#6f6b68);border-radius:0 6px 6px 0}
+.card.flip .mon__body::before{right:auto;left:0;transform-origin:0 50%;transform:rotateY(90deg)}
+.mon__screen{position:relative;aspect-ratio:16/10;border-radius:8px;overflow:hidden;background:#000;transform:translateZ(.5px)}
+.mon__screen img.page{position:absolute;left:0;top:0;width:100%;height:auto;display:block;will-change:transform;
+  transform:translate3d(0,0,0)}
+
+.mon__screen video{border-radius:inherit;position:absolute;inset:0;width:100%;height:100%;object-fit:contain!important;display:block}
+.mon__screen.vid{aspect-ratio:var(--ar,16/10)}
+.mon__screen::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(118deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.04) 28%,transparent 42%),linear-gradient(0deg,rgba(0,0,0,.12),transparent 30%)}
+.mon__neck{position:relative;width:15%;height:clamp(40px,7vw,78px);margin:-2px auto 0;transform:translateZ(-30px);
+  background:linear-gradient(90deg,#8e8a86,#d9d5d0 45%,#b7b2ad 60%,#7e7a76);clip-path:polygon(8% 0,92% 0,100% 100%,0 100%)}
+.mon__foot{width:36%;height:12px;margin:0 auto;border-radius:3px 3px 8px 8px;transform:translateZ(-30px);
+  background:linear-gradient(180deg,#e5e1dc,#a9a49f);box-shadow:0 1px 0 rgba(255,255,255,.5) inset}
+.stage::after{content:"";position:absolute;left:18%;right:18%;bottom:14px;height:26px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(0,0,0,.35),transparent);filter:blur(6px);z-index:-1}
 html[data-mode="dark"] .stage::after{background:radial-gradient(closest-side,rgba(0,0,0,.8),transparent)}
-/* the app's own icon beside its name */
-.app{display:flex;align-items:center;gap:14px;margin-bottom:22px}
-.app img{width:58px;height:58px;border-radius:13px;display:block;box-shadow:0 8px 18px -10px rgba(26,24,24,.5),0 0 0 1px rgba(var(--fg-rgb),.06)}
-.app .card__meta{margin-bottom:0}
 
 /* arriving */
 .card .card__info>*,.card .stage{transition:opacity .8s ease,transform 1s cubic-bezier(.16,1,.3,1)}
@@ -134,16 +127,15 @@ html[data-mode="dark"] .stage::after{background:radial-gradient(closest-side,rgb
   /* phones: each card fits one screen, desktop on top, the essentials below */
   .card__in{padding:16px 18px 20px;min-height:auto;gap:4px;max-height:calc(100svh - var(--nav-h,64px) - 40px)}
   .stage{order:-1;padding:4px 6% 18px}
+  .mon__neck{height:30px}
   .card__meta{margin-bottom:8px;font-size:11px}
   .card h2{font-size:26px;margin-bottom:4px}
   .card .sub{font-size:13px;margin-bottom:10px}
   .card .desc{font-size:14px;line-height:1.5;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
   .tags{display:none}
   .live{height:44px;padding:0 18px;font-size:13px}
-  .card__in{--w:clamp(150px,calc((100svh - var(--nav-h,64px) - 370px) * .47),230px)}
-  .phone,.card.flip .phone{transform:rotateY(-14deg) rotateX(4deg) rotateZ(.6deg)}
-  .card.flip .phone__body::before{right:0;left:auto;transform-origin:100% 50%;transform:rotateY(-90deg)}
-  .app{margin-bottom:10px;gap:12px}.app img{width:42px;height:42px;border-radius:10px}
+  .mon,.card.flip .mon{transform:rotateY(-10deg) rotateX(3deg)}
+  .card.flip .mon__body::before{right:0;left:auto;transform-origin:100% 50%;transform:rotateY(-90deg)}
 }
 @media (prefers-reduced-motion:reduce){
   .glow{display:none}
@@ -323,6 +315,70 @@ html[data-mode="dark"] .skel::after{background-image:linear-gradient(100deg,#231
 .intro{padding-bottom:clamp(28px,4vw,44px)!important}
 .rn__in{min-width:0}
 .rn nav{min-width:0}
+
+/* ================= Tanishq's projects: monitors for desktop work, phones for mobile work ================= */
+.mon__screen img.fit{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.card__meta .no{font-weight:500}
+.feats{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 22px;max-width:46ch;margin-bottom:28px}
+.feats li{position:relative;padding-left:16px;font-size:14px;line-height:1.4;font-weight:500;color:rgba(var(--fg-rgb),.78)}
+.feats li::before{content:"";position:absolute;left:0;top:.52em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+p.note{display:flex;align-items:flex-start;gap:8px;max-width:44ch;margin:-6px 0 22px;line-height:1.45}
+p.note::before{flex:none;margin-top:.45em}
+.card .card__info>*:nth-child(7){transition-delay:.3s}
+
+/* the screen lights up a beat after the device arrives */
+.mon__screen>video,.mon__screen>img,.phone__vp,.phone__tab{transition:opacity .9s ease .3s}
+.card:not(.seen) .mon__screen>video,.card:not(.seen) .mon__screen>img,.card:not(.seen) .phone__vp,.card:not(.seen) .phone__tab{opacity:0}
+
+/* ---------- the phone: an iPhone turned slightly side-on ---------- */
+.card--phone .card__in{--w:clamp(210px,calc((100svh - var(--nav-h,72px) - 240px) * .5),320px);--sw:calc(var(--w) * .916)}
+.card--phone .stage{perspective:1600px;perspective-origin:50% 45%;display:grid;place-items:center;padding:6px 0 34px}
+.card--phone .stage::after{left:50%;right:auto;bottom:10px;width:calc(var(--w) * 1.05);transform:translateX(-50%);
+  background:radial-gradient(closest-side,rgba(0,0,0,.3),transparent);filter:blur(7px)}
+html[data-mode="dark"] .card--phone .stage::after{background:radial-gradient(closest-side,rgba(0,0,0,.8),transparent)}
+.phone{position:relative;width:var(--w);transform-style:preserve-3d;transform:rotateY(-21deg) rotateX(6deg) rotateZ(1.2deg);transition:transform 1.2s cubic-bezier(.16,1,.3,1)}
+.card.flip .phone{transform:rotateY(21deg) rotateX(6deg) rotateZ(-1.2deg)}
+.card:hover .phone{transform:rotateY(-12deg) rotateX(3deg) rotateZ(.5deg)}
+.card.flip:hover .phone{transform:rotateY(12deg) rotateX(3deg) rotateZ(-.5deg)}
+.phone__body{position:relative;transform-style:preserve-3d;padding:calc(var(--w) * .012);border-radius:calc(var(--w) * .168);
+  background:linear-gradient(145deg,#e4e0db 0%,#8f8a85 22%,#5b5753 48%,#9d9893 74%,#e6e2dd 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),0 50px 80px -40px rgba(26,24,24,.55),0 18px 30px -18px rgba(26,24,24,.35)}
+html[data-mode="dark"] .phone__body{box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),0 50px 80px -40px rgba(0,0,0,.9),0 18px 30px -18px rgba(0,0,0,.7)}
+/* the frame's thickness: an edge you see because the phone is turned */
+.phone__body::before{content:"";position:absolute;top:calc(var(--w) * .16);bottom:calc(var(--w) * .16);right:0;width:calc(var(--w) * .05);transform-origin:100% 50%;transform:rotateY(-90deg);
+  background:linear-gradient(180deg,#cfcac5,#8c8783 30%,#6d6965 70%,#b9b4af)}
+.card.flip .phone__body::before{right:auto;left:0;transform-origin:0 50%;transform:rotateY(90deg)}
+.phone__btn{position:absolute;width:calc(var(--w) * .014);border-radius:2px;background:linear-gradient(90deg,#6e6a66,#bdb8b3);transform:translateZ(-1px)}
+.phone__btn.l{left:calc(var(--w) * -.008)}
+.phone__btn.r{right:calc(var(--w) * -.008)}
+.phone__screen{position:relative;box-sizing:content-box;aspect-ratio:1180/2556;border:calc(var(--w) * .03) solid #050505;border-radius:calc(var(--w) * .156);overflow:hidden;background:#141414;transform:translateZ(.5px)}
+.phone__screen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
+  background:linear-gradient(118deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.03) 30%,transparent 44%)}
+.island{position:absolute;left:34%;top:calc(var(--sw) * .028);width:32%;aspect-ratio:126/37;border-radius:999px;background:#000;z-index:4}
+.sbar{position:absolute;left:0;right:0;top:0;height:calc(var(--sw) * .15);display:flex;align-items:center;justify-content:space-between;
+  padding:0 calc(var(--sw) * .085) 0 calc(var(--sw) * .115);color:#fff;font-size:calc(var(--sw) * .043);font-weight:600;letter-spacing:-.01em;pointer-events:none}
+.sbar svg{height:calc(var(--sw) * .036);width:auto;display:block}
+.sbar span:last-child{display:flex;align-items:center;gap:calc(var(--sw) * .014)}
+/* an app on the screen: the status bar and tab bar stay put, the page between them scrolls */
+.phone__screen.app{display:flex;flex-direction:column;background:var(--sb,#fff)}
+.phone__screen.app .sbar{position:relative;flex:none;z-index:2;color:var(--sbfg,#111);background:var(--sb,#fff)}
+.phone__vp{position:relative;flex:1;min-height:0;overflow:hidden;background:var(--sb,#fff)}
+.phone__vp img.page{position:absolute;left:0;top:0;width:100%;height:auto;display:block;will-change:transform;transform:translate3d(0,0,0)}
+.phone__tab{position:relative;flex:none;z-index:2;background:var(--tab,#fff);box-shadow:0 -1px 0 rgba(0,0,0,.06)}
+.phone__tab img{display:block;width:100%;height:auto}
+.phone__tab.hb{padding-bottom:calc(var(--sw) * .075)}
+.phone__tab.hb::after{content:"";position:absolute;left:50%;bottom:calc(var(--sw) * .024);width:35%;height:calc(var(--sw) * .013);border-radius:999px;background:#111;transform:translateX(-50%)}
+
+@media (max-width:899.98px){
+  .card--phone .card__in{--w:clamp(150px,calc((100svh - var(--nav-h,64px) - 370px) * .47),230px)}
+  .phone,.card.flip .phone{transform:rotateY(-14deg) rotateX(4deg) rotateZ(.6deg)}
+  .card.flip .phone__body::before{right:0;left:auto;transform-origin:100% 50%;transform:rotateY(-90deg)}
+  .feats{display:none}
+  p.note{margin:-4px 0 12px;font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  .mon__screen>video,.mon__screen>img,.phone__vp,.phone__tab{transition:none;opacity:1!important}
+}
 </style>
 <link rel="canonical" href="https://tanishqnarula.dev/app-developer/" />
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
@@ -335,7 +391,7 @@ html[data-mode="dark"] .skel::after{background-image:linear-gradient(100deg,#231
 <meta property="og:locale" content="en_US" />
 <meta property="og:url" content="https://tanishqnarula.dev/app-developer/" />
 <meta property="og:title" content="AI &amp; Automation Freelancer — Tanishq Narula" />
-<meta property="og:description" content="AI automation freelancer in India: intelligent applications and automated workflows built by Tanishq Narula, a software developer from Jaipur." />
+<meta property="og:description" content="AI and automation work by Tanishq Narula, freelance developer in Jaipur: Xenio, a personal AI assistant and agentic operating system, the AscendAI goal tracker and WhatsApp automation with Google Apps Script." />
 <meta property="og:image" content="https://tanishqnarula.dev/images/seo/tanishq-narula-og.jpg" />
 <meta property="og:image:secure_url" content="https://tanishqnarula.dev/og.jpg?v=2" />
 <meta property="og:image:type" content="image/jpeg" />
@@ -344,16 +400,16 @@ html[data-mode="dark"] .skel::after{background-image:linear-gradient(100deg,#231
 <meta property="og:image:alt" content="Tanishq Narula&#39;s portfolio" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="AI &amp; Automation Freelancer — Tanishq Narula" />
-<meta name="twitter:description" content="AI automation freelancer in India: intelligent applications and automated workflows built by Tanishq Narula, a software developer from Jaipur." />
+<meta name="twitter:description" content="AI and automation work by Tanishq Narula, freelance developer in Jaipur: Xenio, a personal AI assistant and agentic operating system, the AscendAI goal tracker and WhatsApp automation with Google Apps Script." />
 <meta name="twitter:image" content="https://tanishqnarula.dev/images/seo/tanishq-narula-og.jpg" />
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Person","@id":"https://tanishqnarula.dev/#tanishq","name":"Tanishq Narula","givenName":"Tanishq","familyName":"Narula","alternateName":["Tanishq","tanisnarula12"],"url":"https://tanishqnarula.dev/","image":"https://tanishqnarula.dev/images/profile/tanishq-portrait.webp","jobTitle":"Freelance Software Developer, AI Builder and Designer","description":"Freelance software developer and designer in Jaipur, India. Tanishq Narula builds websites, web apps, AI automation and UI/UX design for startups and businesses. Available for freelance projects.","email":"mailto:tanishqnarula60@gmail.com","telephone":"+91-6378211535","sameAs":["https://github.com/tanisnarula12","https://www.linkedin.com/in/tanishq-narula-0295a7328/"],"knowsAbout":["Web Development","Web Applications","CRM Development","AI & Automation","Workflow Automation","UI/UX Design","Graphic Design","Branding","Visual Communication"],"address":{"@type":"PostalAddress","addressLocality":"Jaipur","addressRegion":"Rajasthan","addressCountry":"IN"},"affiliation":{"@type":"CollegeOrUniversity","name":"Swami Keshvanand Institute of Technology, Jaipur"},"worksFor":{"@type":"Organization","name":"Fintness Finserv"}},{"@type":"ProfessionalService","@id":"https://tanishqnarula.dev/#services","name":"Tanishq Narula — Freelance Web, AI & Design","url":"https://tanishqnarula.dev/","image":"https://tanishqnarula.dev/images/seo/tanishq-narula-og.jpg","description":"Freelance software developer and designer in Jaipur, India. Tanishq Narula builds websites, web apps, AI automation and UI/UX design for startups and businesses. Available for freelance projects.","email":"mailto:tanishqnarula60@gmail.com","telephone":"+91-6378211535","founder":{"@id":"https://tanishqnarula.dev/#tanishq"},"address":{"@type":"PostalAddress","addressLocality":"Jaipur","addressRegion":"Rajasthan","addressCountry":"IN"},"areaServed":[{"@type":"Country","name":"India"},{"@type":"Place","name":"Worldwide (remote)"}],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Freelance services","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Web Development","description":"Responsive websites, web applications and business software such as CRM tools, built end to end.","provider":{"@id":"https://tanishqnarula.dev/#tanishq"}}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"AI & Automation","description":"AI-powered applications and automated workflows for businesses.","provider":{"@id":"https://tanishqnarula.dev/#tanishq"}}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"UI/UX Design","description":"User flows, wireframes, interface design and interactive prototypes.","provider":{"@id":"https://tanishqnarula.dev/#tanishq"}}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Graphic Design","description":"Social media creatives, branding and visual communication for clients.","provider":{"@id":"https://tanishqnarula.dev/#tanishq"}}}]}},{"@type":"WebSite","@id":"https://tanishqnarula.dev/#website","url":"https://tanishqnarula.dev/","name":"Tanishq Narula — Portfolio","description":"Freelance software developer and designer in Jaipur, India. Tanishq Narula builds websites, web apps, AI automation and UI/UX design for startups and businesses. Available for freelance projects.","publisher":{"@id":"https://tanishqnarula.dev/#tanishq"},"inLanguage":"en"}]}</script>
-<meta name="google-site-verification" content="dB3k2roAkI1S8861shwLsjVKNyl1q-TjchYYJWrG-18" /><link rel="me" href="https://github.com/tanisnarula12"/><link rel="me" href="https://www.linkedin.com/in/tanishq-narula-0295a7328/"/><meta name="geo.region" content="IN-RJ"/><meta name="geo.placename" content="Jaipur"/><link rel="stylesheet" href="/assets/tn/tn.css?v=8c3fc8c0">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Person","@id":"https://tanishqnarula.dev/#tanishq","name":"Tanishq Narula","givenName":"Tanishq","familyName":"Narula","alternateName":["Tanishq","tanisnarula12"],"url":"https://tanishqnarula.dev/","image":"https://tanishqnarula.dev/images/profile/tanishq-portrait.webp","jobTitle":"Freelance Software Developer, AI Builder and Designer","description":"Freelance software developer and designer in Jaipur, India. Tanishq Narula builds websites, web apps, AI automation and UI/UX design for startups and businesses. Available for freelance projects.","email":"mailto:tanishqnarula60@gmail.com","telephone":"+91-6378211535","sameAs":["https://github.com/tanisnarula12","https://www.linkedin.com/in/tanishq-narula-0295a7328/"],"knowsAbout":["Web Development","Web Applications","CRM Development","AI & Automation","Workflow Automation","UI/UX Design","Graphic Design","Branding","Visual Communication"],"address":{"@type":"PostalAddress","addressLocality":"Jaipur","addressRegion":"Rajasthan","addressCountry":"IN"},"affiliation":{"@type":"CollegeOrUniversity","name":"Swami Keshvanand Institute of Technology, Jaipur"},"worksFor":{"@type":"Organization","name":"Fintness Finserv"}},{"@type":"ProfessionalService","@id":"https://tanishqnarula.dev/#services","name":"Tanishq Narula — Freelance Web, AI & Design","url":"https://tanishqnarula.dev/","image":"https://tanishqnarula.dev/images/seo/tanishq-narula-og.jpg","description":"Freelance software developer and designer in Jaipur, India. Tanishq Narula builds websites, web apps, AI automation and UI/UX design for startups and businesses. Available for freelance projects.","email":"mailto:tanishqnarula60@gmail.com","telephone":"+91-6378211535","founder":{"@id":"https://tanishqnarula.dev/#tanishq"},"address":{"@type":"PostalAddress","addressLocality":"Jaipur","addressRegion":"Rajasthan","addressCountry":"IN"},"areaServed":[{"@type":"Country","name":"India"},{"@type":"Place","name":"Worldwide (remote)"}],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Freelance services","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Web Development","description":"Responsive websites, web applications and business software such as CRM tools, built end to end.","provider":{"@id":"https://tanishqnarula.dev/#tanishq"}}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"AI & Automation","description":"AI-powered applications and automated workflows for businesses.","provider":{"@id":"https://tanishqnarula.dev/#tanishq"}}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"UI/UX Design","description":"User flows, wireframes, interface design and interactive prototypes.","provider":{"@id":"https://tanishqnarula.dev/#tanishq"}}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Graphic Design","description":"Social media creatives, branding and visual communication for clients.","provider":{"@id":"https://tanishqnarula.dev/#tanishq"}}}]}},{"@type":"WebSite","@id":"https://tanishqnarula.dev/#website","url":"https://tanishqnarula.dev/","name":"Tanishq Narula — Portfolio","description":"Freelance software developer and designer in Jaipur, India. Tanishq Narula builds websites, web apps, AI automation and UI/UX design for startups and businesses. Available for freelance projects.","publisher":{"@id":"https://tanishqnarula.dev/#tanishq"},"inLanguage":"en"},{"@type":"ItemList","@id":"https://tanishqnarula.dev/app-developer/#projects","name":"AI & Automation projects","itemListElement":[{"@type":"ListItem","position":1,"item":{"@type":"CreativeWork","name":"Xenio","headline":"Intelligence beyond conversation.","description":"A personal AI assistant and agentic operating system that connects AI to real work on your computer. Give Xenio a goal in plain language: its orchestration engine breaks it into tasks, delegates them to specialised agents, coordinates their work and uses your apps and system tools until it is done.","image":"https://tanishqnarula.dev/media/work/xenio.jpg","creator":{"@id":"https://tanishqnarula.dev/#tanishq"},"keywords":"Multi-agent orchestration, Persistent memory, Voice & multilingual, Keyboard & mouse control, Visual understanding, GitHub & productivity tools","video":{"@type":"VideoObject","name":"Xenio — screen recording","description":"Intelligence beyond conversation.","thumbnailUrl":"https://tanishqnarula.dev/media/work/xenio.jpg","contentUrl":"https://tanishqnarula.dev/media/work/xenio.mp4","uploadDate":"2026-11-07"}}},{"@type":"ListItem","position":2,"item":{"@type":"CreativeWork","name":"AscendAI","headline":"Goals, habits and an AI that holds you to account","description":"Long-term goals, daily tasks and a weekly execution board in one dashboard. AscendAI tracks streaks and consistency, warns about burnout risk, writes AI summaries you can export as PDF, and runs an honest reality check in the tone you pick, from supportive to blunt.","image":"https://tanishqnarula.dev/media/work/ascend-ai.jpg","creator":{"@id":"https://tanishqnarula.dev/#tanishq"},"keywords":"AI insights, Productivity, Analytics, PDF reports","video":{"@type":"VideoObject","name":"AscendAI — screen recording","description":"Goals, habits and an AI that holds you to account","thumbnailUrl":"https://tanishqnarula.dev/media/work/ascend-ai.jpg","contentUrl":"https://tanishqnarula.dev/media/work/ascend-ai.mp4","uploadDate":"2026-11-07"}}},{"@type":"ListItem","position":3,"item":{"@type":"CreativeWork","name":"WhatsApp Automation","headline":"Messages that go out on their own, on time","description":"A Google Apps Script workflow that sends WhatsApp messages to a list of contacts automatically and on schedule, so routine updates and reminders go out without anyone typing them by hand.","image":"https://tanishqnarula.dev/media/work/whatsapp-automation.jpg","creator":{"@id":"https://tanishqnarula.dev/#tanishq"},"keywords":"Google Apps Script, WhatsApp, Scheduling"}}]}]}</script>
+<meta name="google-site-verification" content="dB3k2roAkI1S8861shwLsjVKNyl1q-TjchYYJWrG-18" /><link rel="me" href="https://github.com/tanisnarula12"/><link rel="me" href="https://www.linkedin.com/in/tanishq-narula-0295a7328/"/><meta name="geo.region" content="IN-RJ"/><meta name="geo.placename" content="Jaipur"/><link rel="stylesheet" href="/assets/tn/tn.css?v=b929b048">
 </head>
 <body>
 <div class="glow" aria-hidden="true"></div>
 <header class="rn" id="rn">
   <div class="rn__in">
-    <nav aria-label="Primary"><ul><li><a href="/">Home</a></li><li><a href="/web-developer/">Web Development</a></li><li><a href="/app-developer/" aria-current="page">AI &amp; Automation</a></li><li><a href="/ui-ux-designer/" >UI/UX Design</a></li><li><a href="/graphic-designer/" >Client Work</a></li><li><a href="/#about">My story</a></li><li><a href="/contact/">Contact</a></li></ul></nav>
+    <nav aria-label="Primary"><ul><li><a href="/">Home</a></li><li><a href="/web-developer/">Web Development</a></li><li><a href="/app-developer/" aria-current="page">AI &amp; Automation</a></li><li><a href="/ui-ux-designer/">UI/UX Design</a></li><li><a href="/graphic-designer/">Client Work</a></li><li><a href="/#about">My story</a></li><li><a href="/contact/">Contact</a></li></ul></nav>
     <div class="rn__clock" aria-label="Local time"><span>Local time</span><b data-ftime>—</b><span class="d">•</span><span class="d" data-fdate></span></div>
     <button class="rn__menu" id="rnMenu" aria-expanded="false" aria-controls="rnPanel"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span></button>
   </div>
@@ -362,7 +418,7 @@ html[data-mode="dark"] .skel::after{background-image:linear-gradient(100deg,#231
       <span class="rn__plbl">Menu</span>
       <button class="rn__pclose" id="rnClose" aria-label="Close menu"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </div>
-    <div class="rn__plist"><a href="/" class="rn__pitem">Home</a><a href="/web-developer/" class="rn__pitem">Web Development</a><a href="/app-developer/" class="rn__pitem" aria-current="page">AI &amp; Automation</a><a href="/ui-ux-designer/" class="rn__pitem" >UI/UX Design</a><a href="/graphic-designer/" class="rn__pitem" >Client Work</a><a href="/#about" class="rn__pitem">My story</a><a href="/contact/" class="rn__pitem">Contact</a></div>
+    <div class="rn__plist"><a href="/" class="rn__pitem">Home</a><a href="/web-developer/" class="rn__pitem">Web Development</a><a href="/app-developer/" class="rn__pitem" aria-current="page">AI &amp; Automation</a><a href="/ui-ux-designer/" class="rn__pitem">UI/UX Design</a><a href="/graphic-designer/" class="rn__pitem">Client Work</a><a href="/#about" class="rn__pitem">My story</a><a href="/contact/" class="rn__pitem">Contact</a></div>
     <p class="rn__pfoot">Tanishq Narula — available for new work<br>Jaipur, India · IST</p>
   </div>
 </header>
@@ -373,95 +429,29 @@ html[data-mode="dark"] .skel::after{background-image:linear-gradient(100deg,#231
     <h1>AI &amp; Automation</h1>
     <div><p>Intelligent applications and automation, designed and built end to end: from the first idea to a tool that saves real time.</p></div>
   </section>
-  <section class="stack" id="stack" aria-label="Projects"><!--pre-->
+  <section class="stack" id="stack" aria-label="Projects">
   <article class="card" style="--i:0" aria-labelledby="p0">
     <div class="card__in">
-      <div class="card__info">
-        <div class="app"><img src="icon-expense.webp" alt="" width="58" height="58" decoding="async" loading="eager"><p class="card__meta"><span>AI &amp; automation · 01</span></p></div>
-        <h2 id="p0">Case study 01</h2>
-        <p class="sub">Write-up coming soon</p>
-        <p class="desc">The full story behind this project, from the brief to the build, will be added here soon.</p>
-        <ul class="tags"><li>AI</li><li>Automation</li><li>App</li></ul>
-        <span class="note">Preview</span>
-      </div>
-      <div class="stage" aria-hidden="true">
-        <div class="phone"><div class="phone__body">
-          <i class="phone__btn l" style="top:19%;height:4%"></i><i class="phone__btn l" style="top:26%;height:7.5%"></i><i class="phone__btn l" style="top:35%;height:7.5%"></i><i class="phone__btn r" style="top:28%;height:11%"></i>
-          <div class="phone__screen" style="background-image:url(data:image/webp;base64,UklGRoQAAABXRUJQVlA4IHgAAABQBQCdASoWADAAPrFOoEunJCMhqqgA4BYJaQAAPY/9OjphkIk8XGYA6eEFf3dAe9tN3gAA/varJVrewwzMIzTFLawEO29Fx1JsHinvtEM2zUFTPr13RVQd9uhJzNhx6bwOr+5hOwzYEeeMEGNNChwNt7zrkEgAAAA=)">
-            <video muted loop playsinline preload="metadata" poster="app-expense.webp" src="app-expense.mp4"></video>
-            <div class="sbar"><span>9:41</span><span><svg aria-hidden="true" focusable="false" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg aria-hidden="true" focusable="false" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.3 0 4.4.9 6 2.4l1.3-1.4A10.6 10.6 0 0 0 8 .3 10.6 10.6 0 0 0 .7 3.2L2 4.6a8.7 8.7 0 0 1 6-2.4Zm0 3.8c1.3 0 2.5.5 3.4 1.3l1.3-1.4A6.8 6.8 0 0 0 8 4.1a6.8 6.8 0 0 0-4.7 1.8l1.3 1.4C5.5 6.5 6.7 6 8 6Zm0 3.7c-.6 0-1.1.2-1.5.6L8 12l1.5-1.7c-.4-.4-.9-.6-1.5-.6Z"/></svg><svg aria-hidden="true" focusable="false" viewBox="0 0 27 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3.2" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="19" height="8" rx="2" fill="currentColor"/><path d="M24.5 4v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="currentColor" opacity=".45"/></svg></span></div><div class="island"></div>
-          </div>
-        </div></div>
-      </div>
+      <div class="card__info"><p class="card__meta"><span>Personal AI assistant</span><i></i><span class="no">Flagship project</span></p><h2 id="p0">Xenio</h2><p class="sub">Intelligence beyond conversation.</p><p class="desc">A personal AI assistant and agentic operating system that connects AI to real work on your computer. Give Xenio a goal in plain language: its orchestration engine breaks it into tasks, delegates them to specialised agents, coordinates their work and uses your apps and system tools until it is done.</p><ul class="feats"><li>Multi-agent orchestration</li><li>Persistent memory</li><li>Voice &amp; multilingual</li><li>Keyboard &amp; mouse control</li><li>Visual understanding</li><li>GitHub &amp; productivity tools</li></ul><a class="live" href="/contact/" aria-label="Ask about Xenio">Ask about this project <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+      <div class="stage" aria-hidden="true"><div class="mon"><div class="mon__body"><div class="mon__screen vid" style="--ar:1280 / 718"><video muted loop playsinline preload="metadata" poster="/media/work/xenio.jpg" src="/media/work/xenio.mp4" aria-label="Xenio screen recording"></video></div></div><div class="mon__neck"></div><div class="mon__foot"></div></div></div>
     </div>
     <div class="card__dim"></div>
   </article>
   <article class="card flip" style="--i:1" aria-labelledby="p1">
     <div class="card__in">
-      <div class="card__info">
-        <div class="app"><img src="icon-vault.webp" alt="" width="58" height="58" decoding="async" loading="lazy"><p class="card__meta"><span>AI &amp; automation · 02</span></p></div>
-        <h2 id="p1">Case study 02</h2>
-        <p class="sub">Write-up coming soon</p>
-        <p class="desc">The full story behind this project, from the brief to the build, will be added here soon.</p>
-        <ul class="tags"><li>AI</li><li>Automation</li><li>App</li></ul>
-        <span class="note">Preview</span>
-      </div>
-      <div class="stage" aria-hidden="true">
-        <div class="phone"><div class="phone__body">
-          <i class="phone__btn l" style="top:19%;height:4%"></i><i class="phone__btn l" style="top:26%;height:7.5%"></i><i class="phone__btn l" style="top:35%;height:7.5%"></i><i class="phone__btn r" style="top:28%;height:11%"></i>
-          <div class="phone__screen" style="background-image:url(data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAAAwBgCdASoWADAAPpVClkmlpCIhOrzIALASiWkA0YAs2W94CsvMnPEjrZH9/8puNKKooDEk+IeuVpgAAP7y2dGMKDtWIkcS87pXM5c73fkTCwUF+DRPBtVySJ2nAkgXYpkqGTouykU4hp5cR55AAA==)">
-            <video muted loop playsinline preload="metadata" poster="app-vault.webp" src="app-vault.mp4"></video>
-            <div class="sbar"><span>9:41</span><span><svg aria-hidden="true" focusable="false" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg aria-hidden="true" focusable="false" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.3 0 4.4.9 6 2.4l1.3-1.4A10.6 10.6 0 0 0 8 .3 10.6 10.6 0 0 0 .7 3.2L2 4.6a8.7 8.7 0 0 1 6-2.4Zm0 3.8c1.3 0 2.5.5 3.4 1.3l1.3-1.4A6.8 6.8 0 0 0 8 4.1a6.8 6.8 0 0 0-4.7 1.8l1.3 1.4C5.5 6.5 6.7 6 8 6Zm0 3.7c-.6 0-1.1.2-1.5.6L8 12l1.5-1.7c-.4-.4-.9-.6-1.5-.6Z"/></svg><svg aria-hidden="true" focusable="false" viewBox="0 0 27 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3.2" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="19" height="8" rx="2" fill="currentColor"/><path d="M24.5 4v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="currentColor" opacity=".45"/></svg></span></div><div class="island"></div>
-          </div>
-        </div></div>
-      </div>
+      <div class="card__info"><p class="card__meta"><span>AI productivity app</span></p><h2 id="p1">AscendAI</h2><p class="sub">Goals, habits and an AI that holds you to account</p><p class="desc">Long-term goals, daily tasks and a weekly execution board in one dashboard. AscendAI tracks streaks and consistency, warns about burnout risk, writes AI summaries you can export as PDF, and runs an honest reality check in the tone you pick, from supportive to blunt.</p><ul class="tags"><li>AI insights</li><li>Productivity</li><li>Analytics</li><li>PDF reports</li></ul><a class="live" href="/contact/" aria-label="Ask about AscendAI">Ask about this project <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+      <div class="stage" aria-hidden="true"><div class="mon"><div class="mon__body"><div class="mon__screen vid" style="--ar:1280 / 718"><video muted loop playsinline preload="metadata" poster="/media/work/ascend-ai.jpg" src="/media/work/ascend-ai.mp4" aria-label="AscendAI screen recording"></video></div></div><div class="mon__neck"></div><div class="mon__foot"></div></div></div>
     </div>
     <div class="card__dim"></div>
   </article>
   <article class="card" style="--i:2" aria-labelledby="p2">
     <div class="card__in">
-      <div class="card__info">
-        <div class="app"><img src="icon-brick.webp" alt="" width="58" height="58" decoding="async" loading="lazy"><p class="card__meta"><span>AI &amp; automation · 03</span></p></div>
-        <h2 id="p2">Case study 03</h2>
-        <p class="sub">Write-up coming soon</p>
-        <p class="desc">The full story behind this project, from the brief to the build, will be added here soon.</p>
-        <ul class="tags"><li>AI</li><li>Automation</li><li>App</li></ul>
-        <span class="note">Preview</span>
-      </div>
-      <div class="stage" aria-hidden="true">
-        <div class="phone"><div class="phone__body">
-          <i class="phone__btn l" style="top:19%;height:4%"></i><i class="phone__btn l" style="top:26%;height:7.5%"></i><i class="phone__btn l" style="top:35%;height:7.5%"></i><i class="phone__btn r" style="top:28%;height:11%"></i>
-          <div class="phone__screen" style="background-image:url(data:image/webp;base64,UklGRrwAAABXRUJQVlA4ILAAAAAwBgCdASoWADAAPrFGnEmnI6KhNVQIAOAWCWQAx+Q5X7Fb2+drW7FLsX3d1xUlIStpj0XKMRUoP52gAP78ptUdXrARGOtskF8MifbUiH/I2pV9htfUcRcLEZsUP3eAJrueLZGNJKnWpRjMHdgv1VjyOxdpHawEbcckCq9I27rno3Us0eHZpDW7GUyMBuEKNr8UHt6C+GiJtKWqjfSRTnZKBO1LxxDHHMli2UNE0O2QAA==)">
-            <video muted loop playsinline preload="metadata" poster="app-brick.webp" src="app-brick.mp4"></video>
-            <div class="sbar"><span>9:41</span><span><svg aria-hidden="true" focusable="false" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg aria-hidden="true" focusable="false" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.3 0 4.4.9 6 2.4l1.3-1.4A10.6 10.6 0 0 0 8 .3 10.6 10.6 0 0 0 .7 3.2L2 4.6a8.7 8.7 0 0 1 6-2.4Zm0 3.8c1.3 0 2.5.5 3.4 1.3l1.3-1.4A6.8 6.8 0 0 0 8 4.1a6.8 6.8 0 0 0-4.7 1.8l1.3 1.4C5.5 6.5 6.7 6 8 6Zm0 3.7c-.6 0-1.1.2-1.5.6L8 12l1.5-1.7c-.4-.4-.9-.6-1.5-.6Z"/></svg><svg aria-hidden="true" focusable="false" viewBox="0 0 27 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3.2" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="19" height="8" rx="2" fill="currentColor"/><path d="M24.5 4v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="currentColor" opacity=".45"/></svg></span></div><div class="island"></div>
-          </div>
-        </div></div>
-      </div>
+      <div class="card__info"><p class="card__meta"><span>Automation</span><i></i><span class="no">Google Apps Script</span></p><h2 id="p2">WhatsApp Automation</h2><p class="sub">Messages that go out on their own, on time</p><p class="desc">A Google Apps Script workflow that sends WhatsApp messages to a list of contacts automatically and on schedule, so routine updates and reminders go out without anyone typing them by hand.</p><ul class="tags"><li>Google Apps Script</li><li>WhatsApp</li><li>Scheduling</li></ul><a class="live" href="/contact/" aria-label="Ask about WhatsApp Automation">Ask about this project <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+      <div class="stage" aria-hidden="true"><div class="mon"><div class="mon__body"><div class="mon__screen vid" style="--ar:1536 / 1024"><img class="fit" src="/media/work/whatsapp-automation.jpg" alt="WhatsApp Automation design" width="1536" height="1024" decoding="async" loading="lazy"></div></div><div class="mon__neck"></div><div class="mon__foot"></div></div></div>
     </div>
     <div class="card__dim"></div>
   </article>
-  <article class="card flip" style="--i:3" aria-labelledby="p3">
-    <div class="card__in">
-      <div class="card__info">
-        <div class="app"><img src="icon-dice.webp" alt="" width="58" height="58" decoding="async" loading="lazy"><p class="card__meta"><span>AI &amp; automation · 04</span></p></div>
-        <h2 id="p3">Case study 04</h2>
-        <p class="sub">Write-up coming soon</p>
-        <p class="desc">The full story behind this project, from the brief to the build, will be added here soon.</p>
-        <ul class="tags"><li>AI</li><li>Automation</li><li>App</li></ul>
-        <span class="note">Preview</span>
-      </div>
-      <div class="stage" aria-hidden="true">
-        <div class="phone"><div class="phone__body">
-          <i class="phone__btn l" style="top:19%;height:4%"></i><i class="phone__btn l" style="top:26%;height:7.5%"></i><i class="phone__btn l" style="top:35%;height:7.5%"></i><i class="phone__btn r" style="top:28%;height:11%"></i>
-          <div class="phone__screen" style="background-image:url(data:image/webp;base64,UklGRngAAABXRUJQVlA4IGwAAACQBACdASoWADAAPqlGnkmmJCMhMAqowBUJYgCDMfkgGEg4+mAlEH6d3GNpc0AA/rhzRmSQDP+chJNr/d1jZAbXbk4ynfkvNYiJnwJ5T43ypu3InS8X7SMq5QkGluq3yOIvkG7PRYsaKUYAAAA=)">
-            <video muted loop playsinline preload="metadata" poster="app-dice.webp" src="app-dice.mp4"></video>
-            <div class="sbar"><span>9:41</span><span><svg aria-hidden="true" focusable="false" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg aria-hidden="true" focusable="false" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.3 0 4.4.9 6 2.4l1.3-1.4A10.6 10.6 0 0 0 8 .3 10.6 10.6 0 0 0 .7 3.2L2 4.6a8.7 8.7 0 0 1 6-2.4Zm0 3.8c1.3 0 2.5.5 3.4 1.3l1.3-1.4A6.8 6.8 0 0 0 8 4.1a6.8 6.8 0 0 0-4.7 1.8l1.3 1.4C5.5 6.5 6.7 6 8 6Zm0 3.7c-.6 0-1.1.2-1.5.6L8 12l1.5-1.7c-.4-.4-.9-.6-1.5-.6Z"/></svg><svg aria-hidden="true" focusable="false" viewBox="0 0 27 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3.2" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="19" height="8" rx="2" fill="currentColor"/><path d="M24.5 4v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="currentColor" opacity=".45"/></svg></span></div><div class="island"></div>
-          </div>
-        </div></div>
-      </div>
-    </div>
-    <div class="card__dim"></div>
-  </article><!--/pre--></section>
+  </section>
 </main>
 <div class="sfw">
 <footer class="sf" id="contact-footer" aria-labelledby="sfTitle">
@@ -512,158 +502,121 @@ html[data-mode="dark"] .skel::after{background-image:linear-gradient(100deg,#231
 <button class="totop" data-nav="top" aria-label="Back to top"><svg class="ring" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/></svg><svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg><span class="lbl">Back to top</span></button>
 
 <script>
-const PROJECTS = [{"kind": "AI & automation · 01", "title": "Case study 01", "sub": "Write-up coming soon", "desc": "The full story behind this project, from the brief to the build, will be added here soon.", "tags": ["AI", "Automation", "App"], "video": "app-expense.mp4", "poster": "app-expense.webp", "icon": "icon-expense.webp", "note": "Preview", "lqip": "data:image/webp;base64,UklGRoQAAABXRUJQVlA4IHgAAABQBQCdASoWADAAPrFOoEunJCMhqqgA4BYJaQAAPY/9OjphkIk8XGYA6eEFf3dAe9tN3gAA/varJVrewwzMIzTFLawEO29Fx1JsHinvtEM2zUFTPr13RVQd9uhJzNhx6bwOr+5hOwzYEeeMEGNNChwNt7zrkEgAAAA="}, {"kind": "AI & automation · 02", "title": "Case study 02", "sub": "Write-up coming soon", "desc": "The full story behind this project, from the brief to the build, will be added here soon.", "tags": ["AI", "Automation", "App"], "video": "app-vault.mp4", "poster": "app-vault.webp", "icon": "icon-vault.webp", "note": "Preview", "lqip": "data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAAAwBgCdASoWADAAPpVClkmlpCIhOrzIALASiWkA0YAs2W94CsvMnPEjrZH9/8puNKKooDEk+IeuVpgAAP7y2dGMKDtWIkcS87pXM5c73fkTCwUF+DRPBtVySJ2nAkgXYpkqGTouykU4hp5cR55AAA=="}, {"kind": "AI & automation · 03", "title": "Case study 03", "sub": "Write-up coming soon", "desc": "The full story behind this project, from the brief to the build, will be added here soon.", "tags": ["AI", "Automation", "App"], "video": "app-brick.mp4", "poster": "app-brick.webp", "icon": "icon-brick.webp", "note": "Preview", "lqip": "data:image/webp;base64,UklGRrwAAABXRUJQVlA4ILAAAAAwBgCdASoWADAAPrFGnEmnI6KhNVQIAOAWCWQAx+Q5X7Fb2+drW7FLsX3d1xUlIStpj0XKMRUoP52gAP78ptUdXrARGOtskF8MifbUiH/I2pV9htfUcRcLEZsUP3eAJrueLZGNJKnWpRjMHdgv1VjyOxdpHawEbcckCq9I27rno3Us0eHZpDW7GUyMBuEKNr8UHt6C+GiJtKWqjfSRTnZKBO1LxxDHHMli2UNE0O2QAA=="}, {"kind": "AI & automation · 04", "title": "Case study 04", "sub": "Write-up coming soon", "desc": "The full story behind this project, from the brief to the build, will be added here soon.", "tags": ["AI", "Automation", "App"], "video": "app-dice.mp4", "poster": "app-dice.webp", "icon": "icon-dice.webp", "note": "Preview", "lqip": "data:image/webp;base64,UklGRngAAABXRUJQVlA4IGwAAACQBACdASoWADAAPqlGnkmmJCMhMAqowBUJYgCDMfkgGEg4+mAlEH6d3GNpc0AA/rhzRmSQDP+chJNr/d1jZAbXbk4ynfkvNYiJnwJ5T43ypu3InS8X7SMq5QkGluq3yOIvkG7PRYsaKUYAAAA="}];
-const ARROW = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>';
-const SIG = '<svg aria-hidden="true" focusable="false" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>';
-const WIFI = '<svg aria-hidden="true" focusable="false" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.3 0 4.4.9 6 2.4l1.3-1.4A10.6 10.6 0 0 0 8 .3 10.6 10.6 0 0 0 .7 3.2L2 4.6a8.7 8.7 0 0 1 6-2.4Zm0 3.8c1.3 0 2.5.5 3.4 1.3l1.3-1.4A6.8 6.8 0 0 0 8 4.1a6.8 6.8 0 0 0-4.7 1.8l1.3 1.4C5.5 6.5 6.7 6 8 6Zm0 3.7c-.6 0-1.1.2-1.5.6L8 12l1.5-1.7c-.4-.4-.9-.6-1.5-.6Z"/></svg>';
-const BATT = '<svg aria-hidden="true" focusable="false" viewBox="0 0 27 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3.2" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="19" height="8" rx="2" fill="currentColor"/><path d="M24.5 4v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="currentColor" opacity=".45"/></svg>';
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const stack = document.getElementById('stack');
-if (!stack.firstElementChild) stack.innerHTML = PROJECTS.map((p, i) => `
-  <article class="card${i % 2 ? ' flip' : ''}" style="--i:${i}" aria-labelledby="p${i}">
-    <div class="card__in">
-      <div class="card__info">
-        <div class="app"><img src="${p.icon}" alt="" width="58" height="58" decoding="async" loading="${i < 1 ? 'eager' : 'lazy'}"><p class="card__meta"><span>AI &amp; automation · 05</span></p></div>
-        <h2 id="p${i}">${esc(p.title)}</h2>
-        <p class="sub">Write-up coming soon</p>
-        <p class="desc">The full story behind this project, from the brief to the build, will be added here soon.</p>
-        <ul class="tags"><li>AI</li><li>Automation</li><li>App</li></ul>
-        ${p.url ? `<a class="live" href="/contact/">Ask about this project</a>` : `<span class="note">Preview</span>`}
-      </div>
-      <div class="stage" aria-hidden="true">
-        <div class="phone"><div class="phone__body">
-          <i class="phone__btn l" style="top:19%;height:4%"></i><i class="phone__btn l" style="top:26%;height:7.5%"></i><i class="phone__btn l" style="top:35%;height:7.5%"></i><i class="phone__btn r" style="top:28%;height:11%"></i>
-          <div class="phone__screen" style="background-image:url(${p.lqip})">
-            <video muted loop playsinline preload="metadata" poster="${p.poster}" src="${p.video}"></video>
-            <div class="sbar"><span>9:41</span><span>${SIG}${WIFI}${BATT}</span></div><div class="island"></div>
-          </div>
-        </div></div>
-      </div>
-    </div>
-    <div class="card__dim"></div>
-  </article>`).join('');
+(() => {
+  const stack = document.getElementById('stack'); if (!stack) return;
+  const cards = [...stack.querySelectorAll('.card')];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.__live = !document.documentElement.classList.contains('embed');
 
-const cards = [...stack.querySelectorAll('.card')];
-// a recording's screen takes the recording's own shape, so nothing is cropped or letterboxed
-/* Recordings play one at a time, and are plain videos: a real source, the browser's own poster and
-   metadata preload, exactly like the UI/UX page. Safari draws its own still from the poster, so
-   nothing has to be filled in by script before a screen can show a picture. Phones decode only a
-   few videos at once, so only the screen being looked at plays and the rest are paused. */
-const VIDS = cards.map(c => {
-  const v = c.querySelector('video'); if (!v) return null;
-  const scr = v.parentElement; scr.classList.add('vid');
-  const o = { c, v, scr, armed: false, failed: false };
-  const shape = () => { if (v.videoWidth) scr.style.setProperty('--ar', v.videoWidth + ' / ' + v.videoHeight); };
-  if (v.readyState >= 1) shape(); else v.addEventListener('loadedmetadata', shape, { once: true });
-  v.addEventListener('error', () => { o.failed = true; });      // the poster simply stays
-  return o;
-}).filter(Boolean);
-function arm(o){ o.armed = true; }
-function release(o){ o.armed = false; try { o.v.pause(); } catch (e) {} }
-let activeVid = null;
-function pickVideo(){
-  if (!window.__live){ VIDS.forEach(release); activeVid = null; return; }
-  // Which screen is the person actually looking at? Measure how much of each screen is
-  // on display (cards stack over one another, so a screen stops where the next card starts).
-  // Anything showing most of itself is a real candidate, and of those the one nearest the
-  // middle of the window wins, so a card just sliding in at the bottom cannot steal it.
-  const seen = [];
-  for (const o of VIDS){
-    if (o.failed || !o.c.classList.contains('on')) continue;
-    const r = o.scr.getBoundingClientRect();
-    if (r.height < 1) continue;
+  // how much of a screen is really on show: cards stack, so a screen ends where the next card begins
+  const shown = (el, c) => {
+    const r = el.getBoundingClientRect(); if (r.height < 1) return { area: 0, frac: 0, mid: 0 };
     let top = Math.max(r.top, 0), bot = Math.min(r.bottom, innerHeight);
-    const i = cards.indexOf(o.c);
-    for (let k = i + 1; k < cards.length; k++){
-      const n = cards[k].getBoundingClientRect();
-      if (n.top < bot) bot = Math.min(bot, n.top);
-    }
+    for (let k = cards.indexOf(c) + 1; k < cards.length; k++){ const n = cards[k].getBoundingClientRect(); if (n.top < bot) bot = n.top; }
     const area = Math.max(0, bot - top);
-    if (area < 40) continue;
-    seen.push({ o, area, frac: area / r.height, dist: Math.abs((top + bot) / 2 - innerHeight / 2) });
+    return { area, frac: area / r.height, mid: Math.abs((top + bot) / 2 - innerHeight / 2) };
+  };
+
+  // recordings: only the one you are looking at plays (phones decode a few videos at most)
+  const VIDS = cards.map(c => { const v = c.querySelector('video'); if (!v) return null;
+    const o = { c, v, scr: v.parentElement, failed: false }; v.addEventListener('error', () => { o.failed = true; }); return o; }).filter(Boolean);
+  function pickVideo(){
+    if (window.__tnLb) return;                                   // the full-size viewer is open: leave everything be
+    let best = null;
+    if (window.__live && !document.hidden){
+      const seen = [];
+      for (const o of VIDS){ if (o.failed || !o.c.classList.contains('on')) continue; const s = shown(o.scr, o.c); if (s.area >= 40) seen.push(Object.assign({ o }, s)); }
+      const solid = seen.filter(x => x.frac >= .4);
+      if (solid.length) best = solid.sort((a, b) => a.mid - b.mid)[0].o;
+      else if (seen.length) best = seen.sort((a, b) => b.area - a.area)[0].o;
+    }
+    VIDS.forEach(o => { if (o !== best && !o.v.paused) o.v.pause(); });
+    if (best && best.v.paused) best.v.play().catch(() => {});
   }
-  let best = null;
-  const solid = seen.filter(x => x.frac >= 0.4);
-  if (solid.length) best = solid.sort((a, b) => a.dist - b.dist)[0].o;
-  else if (seen.length) best = seen.sort((a, b) => b.area - a.area)[0].o;
-  if (best !== activeVid){ VIDS.forEach(o => { if (o !== best) release(o); }); activeVid = best; }
-  if (best){ arm(best); best.v.play().catch(() => {}); }
-}
-window.__pickVideo = pickVideo;
-// each live page scrolls itself top to bottom and back on its screen
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-// inside the home page the room is loaded early, out of sight: nothing plays until you have walked in and it has faded up
-window.__live = !document.documentElement.classList.contains('embed');
-window.__restartAll = () => {};
-const SPEED = 230, REST = 1100;           // screen pixels a second, pause at each end (ms)
-const shots = cards.map(c => {
-  const img = c.querySelector('img.page'), scr = c.querySelector('.phone__screen'); if (!img) return null;
-  const s = { c, img, scr, pos: 0, dist: 0, dir: 1, wait: REST, held: false };
-  const measure = () => { s.dist = Math.max(0, img.offsetHeight - scr.clientHeight); s.pos = Math.min(s.pos, s.dist); paint(s); };
-  if (img.complete && img.naturalWidth) measure(); else img.addEventListener('load', measure, { once: true });
-  s.measure = measure;
-  return s;
-}).filter(Boolean);
-function paint(s){ s.img.style.transform = `translate3d(0,${-s.pos.toFixed(1)}px,0)`; }
-addEventListener('resize', () => shots.forEach(s => s.measure()));
-// once a screen has been completely out of sight (scrolled away, or fully covered by the card stacked over it),
-// it starts again from the top of its page the next time it shows
-const screens = cards.map(c => ({ c, scr: c.querySelector('.phone__screen'), hidden: true, s: shots.find(x => x.c === c), v: c.querySelector('video') }));
-function restart(o){
-  if (o.s){ o.s.pos = 0; o.s.dir = 1; o.s.wait = REST; paint(o.s); }
-  if (o.v){ try { o.v.currentTime = 0; } catch (err) {} }
-}
-function checkHidden(){
-  screens.forEach((o, i) => {
-    const r = o.scr.getBoundingClientRect();
-    let hidden = r.bottom <= 0 || r.top >= innerHeight;
-    if (!hidden) for (let k = i + 1; k < cards.length; k++){ const n = cards[k].getBoundingClientRect(); if (n.top <= r.top + 1 && n.bottom >= r.bottom - 1){ hidden = true; break; } }
-    if (hidden && !o.hidden) restart(o);
-    o.hidden = hidden;
-    // which recording plays is decided in one place, by pickVideo()
-    if (o.s) o.s.covered = hidden;
-  });
-  window.__pickVideo?.();
-}
-window.__restartAll = () => { screens.forEach(restart); VIDS.forEach(release); activeVid = null; };
-addEventListener('scroll', checkHidden, { passive: true }); addEventListener('resize', checkHidden);
-let lastT = 0;
-function run(t){
-  if (!window.__live){ lastT = t; requestAnimationFrame(run); return; }
-  const dt = Math.min(64, t - (lastT || t)); lastT = t;
-  if (!reduced) for (const s of shots){
-    if (s.held || s.covered || !s.c.classList.contains('on') || !s.dist) continue;
-    if (s.wait > 0){ s.wait -= dt; continue; }
-    const left = s.dir > 0 ? s.dist - s.pos : s.pos;
-    const ease = Math.min(1, .3 + left / 160) * Math.min(1, .35 + (s.dist - left) / 160);   // eases in and out at each end
-    s.pos += s.dir * SPEED * ease * dt / 1000;
-    if (s.pos >= s.dist){ s.pos = s.dist; s.dir = -1; s.wait = REST; }
-    else if (s.pos <= 0){ s.pos = 0; s.dir = 1; s.wait = REST; }
-    paint(s);
+  window.__pickVideo = pickVideo;
+  document.addEventListener('visibilitychange', pickVideo);
+
+  // phone screens scroll the way a thumb does: a flick, a pause to read, another flick,
+  // and at the bottom one long glide back to the top, like tapping the status bar
+  const flick = t => 1 - Math.pow(1 - t, 3);
+  const glide = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const paint = s => { s.img.style.transform = `translate3d(0,${(-s.pos).toFixed(1)}px,0)`; };
+  const shots = cards.map(c => {
+    const vp = c.querySelector('.phone__vp'), img = vp && vp.querySelector('img.page'); if (!img) return null;
+    const s = { c, vp, img, pos: 0, dist: 0, mode: 'rest', wait: 1400, from: 0, to: 0, t: 0, dur: 1, fn: flick, held: false, covered: true };
+    s.measure = () => { s.dist = Math.max(0, img.offsetHeight - vp.clientHeight); s.pos = Math.min(s.pos, s.dist); paint(s); };
+    if (img.complete && img.naturalWidth) s.measure(); else img.addEventListener('load', s.measure, { once: true });
+    const scr = vp.closest('.phone__screen');            // resting a mouse on the phone holds the page still to read
+    scr.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') s.held = true; });
+    scr.addEventListener('pointerleave', () => { s.held = false; });
+    return s;
+  }).filter(Boolean);
+  addEventListener('resize', () => shots.forEach(s => s.measure()));
+  function step(s, dt){
+    if (s.mode === 'rest'){
+      if (s.held || (s.wait -= dt) > 0) return;
+      s.from = s.pos; s.t = 0;
+      if (s.pos >= s.dist - .5){ s.to = 0; s.dur = 1250; s.fn = glide; }
+      else {
+        let to = s.pos + s.vp.clientHeight * (.42 + Math.random() * .16);
+        if (s.dist - to < s.vp.clientHeight * .3) to = s.dist;          // no tiny last nudge
+        s.to = Math.min(s.dist, to); s.dur = 820 + Math.random() * 260; s.fn = flick;
+      }
+      s.mode = 'move'; return;
+    }
+    s.t += dt; const k = Math.min(1, s.t / s.dur);
+    s.pos = s.from + (s.to - s.from) * s.fn(k); paint(s);
+    if (k >= 1){ s.mode = 'rest'; s.wait = s.to === 0 ? 1700 : s.to >= s.dist - .5 ? 1500 : 600 + Math.random() * 450; }
   }
-  requestAnimationFrame(run);
-}
-requestAnimationFrame(run);
-checkHidden();
-// play only what's on screen
-const io = new IntersectionObserver(es => es.forEach(e => {
-  const c = e.target; c.classList.toggle('on', e.isIntersecting);
-  if (e.isIntersecting) c.classList.add('seen');
-  window.__pickVideo?.();
-}), { threshold: .25 });
-cards.forEach(c => io.observe(c));
-// stacking: as the next card slides over, the one beneath settles back a little
-let ticking = false;
-function stackFx(){
-  ticking = false;
-  cards.forEach((c, i) => {
-    const next = cards[i + 1]; let p = 0;
-    if (next){ const top = parseFloat(getComputedStyle(c).top), h = c.offsetHeight; p = Math.min(1, Math.max(0, (top + h - next.getBoundingClientRect().top) / h)); }
-    c.style.transform = p ? `scale(${(1 - p * .06).toFixed(4)})` : '';
-    c.lastElementChild.style.opacity = (p * .28).toFixed(3);
-  });
-}
-if (!reduced){ addEventListener('scroll', () => { if (!ticking){ ticking = true; requestAnimationFrame(stackFx); } }, { passive: true }); stackFx(); }
+  let last = 0;
+  function run(t){
+    const dt = Math.min(64, t - (last || t)); last = t;
+    if (!reduced && window.__live && !window.__tnLb) for (const s of shots){
+      if (s.covered || !s.dist || !s.c.classList.contains('on')) continue;
+      step(s, dt);
+    }
+    requestAnimationFrame(run);
+  }
+  if (shots.length) requestAnimationFrame(run);
+
+  // once a screen has been completely out of sight, it starts again from the top the next time it shows
+  const screens = cards.map(c => ({ c, scr: c.querySelector('.mon__screen, .phone__screen'), hidden: true, s: shots.find(x => x.c === c), v: c.querySelector('video') }));
+  const restart = o => {
+    if (o.s){ o.s.pos = 0; o.s.mode = 'rest'; o.s.wait = 1400; paint(o.s); }
+    if (o.v){ try { o.v.pause(); o.v.currentTime = 0; } catch (e) {} }
+  };
+  window.__restartAll = () => screens.forEach(restart);
+  function checkHidden(){
+    if (window.__tnLb) return;
+    screens.forEach(o => {
+      if (!o.scr) return;
+      const hidden = shown(o.scr, o.c).area < 1;
+      if (hidden && !o.hidden) restart(o);
+      o.hidden = hidden; if (o.s) o.s.covered = hidden;
+    });
+    pickVideo();
+  }
+
+  // stacking: as the next card slides over, the one beneath settles back a little
+  function stackFx(){
+    cards.forEach((c, i) => {
+      const next = cards[i + 1]; let p = 0;
+      if (next){ const top = parseFloat(getComputedStyle(c).top), h = c.offsetHeight; p = Math.min(1, Math.max(0, (top + h - next.getBoundingClientRect().top) / h)); }
+      c.style.transform = p ? `scale(${(1 - p * .06).toFixed(4)})` : '';
+      c.lastElementChild.style.opacity = (p * .28).toFixed(3);
+    });
+  }
+  let ticking = false;
+  const frame = () => { ticking = false; if (!reduced) stackFx(); checkHidden(); };
+  const kick = () => { if (!ticking){ ticking = true; requestAnimationFrame(frame); } };
+  addEventListener('scroll', kick, { passive: true }); addEventListener('resize', kick);
+  const io = new IntersectionObserver(es => {
+    es.forEach(e => { e.target.classList.toggle('on', e.isIntersecting); if (e.isIntersecting) e.target.classList.add('seen'); });
+    kick();
+  }, { threshold: .25 });
+  cards.forEach(c => io.observe(c));
+  kick();
+})();
 </script>
 <script>
 (() => {
@@ -677,7 +630,7 @@ if (!reduced){ addEventListener('scroll', () => { if (!ticking){ ticking = true;
     const m = e.data || {};
     if (m.wall === 'enter'){ root.classList.remove('out'); scrollTo(0, 0); window.__restartAll(); requestAnimationFrame(() => root.classList.add('in'));
       clearTimeout(window.__liveT); window.__liveT = setTimeout(() => { window.__live = true; checkHidden(); dispatchEvent(new Event('scroll')); }, 650); }
-    if (m.wall === 'exit'){ clearTimeout(window.__liveT); window.__live = false; root.classList.add('out'); root.classList.remove('in'); window.__pickVideo?.(); }   // __live is false now, so every decoder is handed back
+    if (m.wall === 'exit'){ clearTimeout(window.__liveT); window.__live = false; root.classList.add('out'); root.classList.remove('in'); document.querySelectorAll('video').forEach(v => v.pause()); }
     if (m.wall === 'reset'){ root.classList.remove('out', 'in'); }
     if (m.wall === 'mode'){ if (m.mode === 'dark') root.dataset.mode = 'dark'; else delete root.dataset.mode; }
   });
@@ -819,7 +772,7 @@ if (!reduced){ addEventListener('scroll', () => { if (!ticking){ ticking = true;
     else if (to === 'door:0') location.href = '/web-developer/';
     else if (to === 'door:1') location.href = '/app-developer/';
     else if (to === 'door:2') location.href = '/ui-ux-designer/';
-    else if (to === 'door:3') location.href = '/photographer/';
+    else if (to === 'door:3') location.href = '/graphic-designer/';
     else if (to.startsWith('door:')) location.href = '/web-developer/';
   };
   document.addEventListener('click', e => {
@@ -875,7 +828,7 @@ if (!reduced){ addEventListener('scroll', () => { if (!ticking){ ticking = true;
 .ck button[data-ck="yes"]{background:#E8E4E0;color:#1A1818;border-color:transparent}
 @media (max-width:539.98px){.ck{flex-direction:column;align-items:stretch}.ck div button{flex:1}}
 </style>
-<script src="/assets/tn/tn.js?v=8c3fc8c0" defer></script>
+<script src="/assets/tn/tn.js?v=b929b048" defer></script>
 </body>
 </html>
 

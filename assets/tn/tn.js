@@ -92,8 +92,9 @@
     }
   }
   // the dialogs can scroll inside themselves while the page is held
-  const scrollableInside = el => !!el.closest('.modal__panel, .holo');
+  const scrollableInside = el => !!el?.closest?.('.modal__panel, .holo, .tnv__phone');
   addEventListener('wheel', e => { if (holds && scrollableInside(e.target)) e.stopImmediatePropagation(); }, { capture: true, passive: true });
+  addEventListener('touchmove', e => { if (holds && e.target?.closest?.('.tnv__phone')) e.stopImmediatePropagation(); }, { capture: true, passive: true });
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -1001,5 +1002,147 @@
     });
     // warm the card's picture once the page has settled, so it opens fully drawn
     addEventListener('load', () => setTimeout(() => { const i = new Image(); i.decoding = 'async'; i.src = '/images/profile/tanishq-card.webp'; }, 1500), { once: true });
+  }
+
+  /* ================================================================== project screens, full size
+     Any screen in a room (a monitor's recording or design, a phone's app) opens full size: it grows out of
+     the device it sits in, and shrinks back into it on close. A recording carries on from the same moment,
+     and a phone design becomes a column you can scroll yourself. Over a screen, the cursor says what a click does. */
+  const IS_ROOM = /^\/(web-developer|app-developer|ui-ux-designer|graphic-designer)\/?$/.test(path);
+  if (IS_ROOM && !EMBED) safe('screens', initScreens);
+  function initScreens() {
+    const SEL = '#stack .mon__screen, #stack .phone__screen';
+    const card = s => s.closest('.card');
+    const titleOf = s => (card(s)?.querySelector('h2')?.textContent || '').trim();
+    const subOf = s => (card(s)?.querySelector('.sub')?.textContent || '').trim();
+    const prep = () => $$(SEL).forEach(s => {
+      if (s.dataset.tnx || !s.querySelector('video, img.page, img.fit')) return;
+      const play = !!s.querySelector('video');
+      s.dataset.tnx = play ? 'play' : 'view';
+      s.tabIndex = 0; s.setAttribute('role', 'button');
+      s.setAttribute('aria-label', `${play ? 'Watch' : 'View'} ${titleOf(s)} full size`);
+      s.closest('.stage')?.removeAttribute('aria-hidden');
+    });
+    // the React page gets its attributes only once it has hydrated, so the two never disagree
+    if (W.__next_f) { let n = 0; const wait = () => { if (hasFiber($('#stack .card')) || ++n > 60) prep(); else setTimeout(wait, 150); }; wait(); }
+    else prep();
+
+    let lb, box, cap, xbtn, cur = null;
+    function build() {
+      lb = D.createElement('div'); lb.className = 'tnv'; lb.hidden = true;
+      lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true');
+      lb.innerHTML = '<div class="tnv__bg"></div><div class="tnv__box"></div><p class="tnv__cap"><b></b><span></span></p>'
+        + '<button type="button" class="tnv__x" aria-label="Close"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>';
+      D.body.appendChild(lb);
+      box = $('.tnv__box', lb); cap = $('.tnv__cap', lb); xbtn = $('.tnv__x', lb);
+      // a click anywhere but on the recording's controls or the scrolling design closes it
+      lb.addEventListener('click', e => { if (!e.target.closest('.tnv__box video, .tnv__phone')) close(); });
+      addEventListener('keydown', e => {
+        if (!cur) return;
+        if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+        if (e.key !== 'Tab') return;
+        const f = $$('button, video, [tabindex="0"]', lb), i = f.indexOf(D.activeElement);
+        e.preventDefault(); f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length]?.focus();
+      });
+      addEventListener('resize', () => { if (cur) place(cur); });
+    }
+    // where the full-size screen sits: as large as the window allows, in its own shape, a caption beneath
+    function place(c) {
+      const capH = 64, pad = innerWidth < 600 ? 12 : 40;
+      let w, h;
+      if (c.kind === 'phone') { w = Math.min(400, innerWidth - 24); h = Math.min(innerHeight - capH - 40, w * 2.165); }
+      else { w = Math.min(innerWidth - pad * 2, 1680); h = w / c.ar; const mh = innerHeight - pad * 2 - capH; if (h > mh) { h = mh; w = h * c.ar; } }
+      const L = (innerWidth - w) / 2, T = Math.max(12, (innerHeight - h - capH) / 2);
+      box.style.left = L + 'px'; box.style.top = T + 'px'; box.style.width = w + 'px'; box.style.height = h + 'px';
+      cap.style.top = (T + h + 14) + 'px';
+      return { L, T, w, h };
+    }
+    const fly = (r, b) => `translate(${(r.left + r.width / 2) - (b.L + b.w / 2)}px,${(r.top + r.height / 2) - (b.T + b.h / 2)}px) scale(${r.width / b.w},${r.height / b.h})`;
+    function open(s) {
+      if (cur) return;
+      if (!lb) build();
+      const v0 = s.querySelector('video'), r0 = s.getBoundingClientRect();
+      const kind = v0 ? 'video' : s.querySelector('.phone__vp') ? 'phone' : 'image';
+      let el, ar = r0.width / r0.height;
+      if (kind === 'video') {
+        el = D.createElement('video');
+        el.muted = true; el.loop = true; el.playsInline = true; el.controls = true; el.preload = 'auto';
+        el.poster = v0.poster; el.src = v0.currentSrc || v0.src;
+        const t = v0.currentTime || 0;
+        el.addEventListener('loadedmetadata', () => { try { if (t) el.currentTime = t; } catch (x) {} el.play().catch(() => {}); }, { once: true });
+        if (v0.videoWidth) ar = v0.videoWidth / v0.videoHeight;
+      } else if (kind === 'image') {
+        const i0 = s.querySelector('img');
+        el = D.createElement('img'); el.src = i0.currentSrc || i0.src; el.alt = `${titleOf(s)} design`;
+        if (i0.naturalWidth) ar = i0.naturalWidth / i0.naturalHeight;
+      } else {
+        const body = s.querySelector('.phone__vp img'), tab = s.querySelector('.phone__tab img');
+        el = D.createElement('div'); el.className = 'tnv__phone'; el.tabIndex = 0;
+        el.setAttribute('aria-label', `${titleOf(s)} design, scroll to see all of it`);
+        el.innerHTML = `<img src="${esc(body.currentSrc || body.src)}" alt="${esc(titleOf(s))} design">`
+          + (tab ? `<img class="tnv__tab" src="${esc(tab.currentSrc || tab.src)}" alt="">` : '');
+      }
+      cur = { s, kind, ar, v0, wasPlaying: !!v0 && !v0.paused, focus: D.activeElement };
+      box.className = 'tnv__box tnv__box--' + kind;
+      box.style.setProperty('--sb', getComputedStyle(s).getPropertyValue('--sb').trim() || '#fff');
+      box.replaceChildren(el);
+      $('b', cap).textContent = titleOf(s); $('span', cap).textContent = subOf(s);
+      lb.setAttribute('aria-label', titleOf(s));
+      if (v0) v0.pause();
+      W.__tnLb = true;
+      const b = place(cur);
+      lb.hidden = false; root.classList.add('tnv-open'); holdScroll(true);
+      s.style.opacity = '0';                                   // the screen lifts out of its device
+      void lb.offsetWidth; lb.classList.add('on');
+      if (!reduced()) box.animate([{ transform: fly(r0, b), borderRadius: '10px' }, { transform: 'none' }], { duration: 560, easing: 'cubic-bezier(.32,.72,0,1)' });
+      requestAnimationFrame(() => xbtn.focus({ preventScroll: true }));
+    }
+    function close() {
+      if (!cur) return;
+      const c = cur; cur = null;
+      const lv = box.querySelector('video');
+      if (lv && c.v0) { try { c.v0.currentTime = lv.currentTime; } catch (x) {} }
+      lb.classList.remove('on');
+      const done = () => {
+        box.getAnimations().forEach(a => a.cancel());
+        lb.hidden = true; box.replaceChildren(); c.s.style.opacity = '';
+        root.classList.remove('tnv-open'); holdScroll(false); W.__tnLb = false;
+        if (W.__pickVideo) W.__pickVideo(); else if (c.wasPlaying) c.v0.play().catch(() => {});
+        (c.focus && c.focus !== D.body && c.focus.focus ? c.focus : c.s).focus({ preventScroll: true });
+      };
+      const r0 = c.s.getBoundingClientRect(), r = box.getBoundingClientRect();
+      if (reduced() || r0.bottom < 0 || r0.top > innerHeight) { box.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).onfinish = done; return; }
+      box.animate([{ transform: 'none' }, { transform: fly(r0, { L: r.left, T: r.top, w: r.width, h: r.height }), borderRadius: '10px' }],
+        { duration: 440, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'forwards' }).onfinish = done;
+    }
+    D.addEventListener('click', e => { const s = !cur && !e.button && e.target.closest?.('[data-tnx]'); if (s) { e.preventDefault(); open(s); } });
+    D.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('[data-tnx]')) { e.preventDefault(); open(e.target); } });
+
+    // the cursor: over a screen it becomes a small disc that says Watch or View, trailing the pointer on a spring
+    if (!canHover()) return;
+    const bub = D.createElement('div'); bub.className = 'tnc'; bub.setAttribute('aria-hidden', 'true'); bub.innerHTML = '<span></span>';
+    D.body.appendChild(bub); root.classList.add('tnc-on');
+    const lbl = bub.firstChild;
+    let x = -99, y = -99, tx = -99, ty = -99, raf = 0, over = null;
+    const loop = () => {
+      x += (tx - x) * .24; y += (ty - y) * .24;
+      bub.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;
+      raf = (over || Math.abs(tx - x) + Math.abs(ty - y) > .3) ? requestAnimationFrame(loop) : 0;
+    };
+    const set = s => {
+      if (s === over) return;
+      if (s && !over) { x = tx; y = ty; }
+      over = s;
+      if (s) lbl.textContent = s.dataset.tnx === 'play' ? 'Watch' : 'View';
+      bub.classList.toggle('on', !!s);
+    };
+    addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse') return;
+      tx = e.clientX; ty = e.clientY;
+      set(cur ? null : e.target.closest?.('[data-tnx]') || null);
+      if (!raf) raf = requestAnimationFrame(loop);
+    }, { passive: true });
+    addEventListener('scroll', () => { if (over && !over.matches(':hover')) set(null); }, { passive: true });
+    D.documentElement.addEventListener('pointerleave', () => set(null));
   }
 })();
