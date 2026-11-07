@@ -624,3 +624,107 @@ html[data-mode=dark] .tq .modal__panel { background: #1F1C1C; }
 .mon__screen[data-tn-blocked]::after, .phone__screen[data-tn-blocked]::after {
   background: center / 60px 60px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Ccircle cx='30' cy='30' r='30' fill='%23F8F6F2' fill-opacity='.94'/%3E%3Cpath d='M25 20.5v19l15-9.5z' fill='%231A1818'/%3E%3C/svg%3E"),
     rgba(0, 0, 0, .18) !important; }
+
+/* ================================================================== speed: nobody waits to see the work
+   The template's "000%" intro screen belongs to the home page only, but its markup sits in every page's HTML until
+   React has loaded (seconds on a phone). Pages that aren't home hide it at once. Rooms fade in quicker too. */
+body:has(#stack) #loader, body:has(main.shell) #loader { display: none !important; }
+.glow { animation-duration: .35s !important; animation-delay: 0s !important; }
+.mon__screen > video, .mon__screen > img, .phone__vp, .phone__tab { transition-duration: .5s !important; transition-delay: .1s !important; }
+
+/* ================================================================== phone header: the avatar on its own */
+.mob-hdr__name { display: none !important; }
+.mob-hdr__badge { width: 36px !important; height: 36px !important; }
+
+/* ================================================================== the phone menu, animated
+   React mounts the menu already in its final state, so ordinary transitions never get to run; keyframe
+   animations do. It opens as a circle growing out of the Menu button, a colour wash rises behind it, and each
+   line comes up in turn, its number sliding in just after. */
+@keyframes tnMenuOpen { from { clip-path: circle(0 at calc(100% - 42px) 36px); } to { clip-path: circle(160vmax at calc(100% - 42px) 36px); } }
+@keyframes tnMenuItem { from { opacity: 0; transform: translateY(28px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes tnMenuNum { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+@keyframes tnMenuUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes tnMenuWash { from { opacity: 0; transform: translateY(10%) scale(1.12); } to { opacity: 1; transform: none; } }
+.navm.open { animation: tnMenuOpen .6s cubic-bezier(.65, 0, .35, 1) both; }
+.navm > * { position: relative; z-index: 1; }
+.navm::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(75% 55% at 10% 100%, rgba(164, 85, 44, .3), transparent 70%), radial-gradient(60% 45% at 95% 2%, rgba(196, 176, 176, .2), transparent 72%); }
+.navm.open::before { animation: tnMenuWash 1.1s cubic-bezier(.16, 1, .3, 1) .12s both; }
+.navm.open .navm__top { animation: tnMenuUp .5s ease .22s both; }
+.navm.open .navm__item { animation: tnMenuItem .75s cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(var(--d, 0ms) + 160ms); }
+.navm.open .navm__item small { animation: tnMenuNum .55s ease both; animation-delay: calc(var(--d, 0ms) + 300ms); }
+.navm.open .navm__bot { animation: tnMenuUp .6s cubic-bezier(.16, 1, .3, 1) .55s both; }
+.navm__item { transition: transform .2s ease; }
+.navm__item:active { transform: translateX(6px) !important; }
+.navm__item:active span, .navm__item[aria-current] span { color: #fff; }
+.navm__item[aria-current] small { color: #C9A96E; }
+.navm .close-btn svg { transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
+.navm .close-btn:active svg { transform: rotate(90deg) scale(.9); }
+/* the menu's own logo: the avatar (the old badge clipped "Tanishq." into a circle) */
+.navm__top .brand { width: 40px; height: 40px; flex: none; border-radius: 50%; overflow: hidden; font-size: 0;
+  background: url(/images/profile/avatar.png) 50% 45% / 112% no-repeat, rgba(255, 255, 255, .1) !important; border: 1px solid rgba(255, 255, 255, .14); }
+.navm__top .brand > * { display: none !important; }
+/* the status line at the bottom: quiet on the dark menu instead of a bright white pill */
+.navm .clock { background: rgba(255, 255, 255, .06) !important; border: 1px solid rgba(255, 255, 255, .14) !important; box-shadow: none !important;
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+.navm .clock__mobile-status, .navm .clock__mobile-status * { color: #E8E4E0 !important; }
+.navm .status-sparkle { color: #C9A96E !important; }
+#navStart { color: #E8E4E0 !important; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) {
+  .navm.open, .navm.open::before, .navm.open .navm__top, .navm.open .navm__item, .navm.open .navm__item small, .navm.open .navm__bot { animation: none !important; }
+  .navm::before { opacity: 1; }
+}
+
+/* ================================================================== for recruiters (home, tn.js "recruiters") */
+.tnh { --t-fg: #1A1818; --t-rgb: 26, 24, 24; --t-acc: #A4552C; position: relative; color: var(--t-fg); }
+html[data-mode=dark] .tnh { --t-fg: #E8E4E0; --t-rgb: 232, 228, 224; --t-acc: #D9A07C; }
+.tnh__in { padding-top: clamp(80px, 11vw, 150px); padding-bottom: clamp(80px, 11vw, 150px); }
+.tnh__eye { display: inline-flex; align-items: center; gap: .6rem; margin: 0 0 1.25rem; font-size: .875rem; font-weight: 500; color: rgba(var(--t-rgb), .6); }
+.tnh__eye i { width: .5rem; height: .5rem; border-radius: 50%; background: #8FBF7A; box-shadow: 0 0 0 0 rgba(143, 191, 122, .6); animation: sfPulse 2.2s ease-out infinite; }
+.tnh__t { margin: 0 0 1.25rem; font-size: clamp(2.25rem, 5.6vw, 4.75rem); font-weight: 600; line-height: .98; letter-spacing: -.035em; }
+.tnh__t span { display: block; color: rgba(var(--t-rgb), .42); }
+.tnh__lead { max-width: 54ch; margin: 0 0 clamp(2.5rem, 5vw, 4rem); font-size: 1.0625rem; line-height: 1.6; color: rgba(var(--t-rgb), .72); }
+.tnh__facts { list-style: none; margin: 0 0 clamp(2.5rem, 5vw, 3.5rem); padding: 0; display: grid; gap: 1.25rem 2.5rem; }
+.tnh__facts li { display: grid; gap: .5rem; align-content: start; padding-top: 1.1rem; border-top: 1px solid rgba(var(--t-rgb), .14); }
+.tnh__facts b { font: 600 .75rem/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--t-acc); }
+.tnh__facts span { font-size: 1rem; line-height: 1.55; color: rgba(var(--t-rgb), .85); }
+.tnh__stack { display: grid; gap: 1.25rem 2rem; margin: 0 0 clamp(2.5rem, 5vw, 3.5rem); padding: 1.5rem; border-radius: 1.25rem;
+  background: rgba(var(--t-rgb), .04); border: 1px solid rgba(var(--t-rgb), .08); }
+.tnh__stack h3 { margin: 0 0 .4rem; font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: rgba(var(--t-rgb), .5); }
+.tnh__stack p { margin: 0; font-size: .9375rem; line-height: 1.5; font-weight: 500; }
+.tnh__cta { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.25rem; }
+.tnh__btn { display: inline-flex; align-items: center; gap: .8rem; height: 3.5rem; padding: 0 .55rem 0 1.6rem; border: 0; border-radius: 999px;
+  background: var(--t-fg); color: #F8F6F2; font: inherit; font-size: 1rem; font-weight: 600; cursor: pointer;
+  transition: transform .35s cubic-bezier(.16, 1, .3, 1), box-shadow .35s ease; }
+html[data-mode=dark] .tnh__btn { color: #141212; }
+.tnh__btn b { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: rgba(255, 255, 255, .14); }
+html[data-mode=dark] .tnh__btn b { background: rgba(0, 0, 0, .1); }
+.tnh__btn svg { width: 1.05rem; height: 1.05rem; transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
+.tnh__ghost { display: inline-flex; align-items: center; height: 3.5rem; padding: 0 1.5rem; border-radius: 999px; border: 1px solid rgba(var(--t-rgb), .22);
+  color: var(--t-fg); font-weight: 600; text-decoration: none; transition: background .25s ease, border-color .25s ease, transform .2s ease; }
+.tnh__link { display: inline-flex; align-items: center; gap: .35rem; color: rgba(var(--t-rgb), .75); font-weight: 600; text-decoration: none; transition: color .2s ease; }
+.tnh__link svg { width: 1rem; height: 1rem; }
+@media (hover: hover) and (pointer: fine) {
+  .tnh__btn:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -14px rgba(0, 0, 0, .45); }
+  .tnh__btn:hover svg { transform: translateX(3px); }
+  .tnh__ghost:hover { background: rgba(var(--t-rgb), .05); border-color: rgba(var(--t-rgb), .4); }
+  .tnh__link:hover { color: var(--t-fg); }
+}
+.tnh__btn:active, .tnh__ghost:active { transform: scale(.97); transition-duration: .1s; }
+@media (min-width: 900px) {
+  .tnh__facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tnh__stack { grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 1.75rem 2rem; }
+}
+@media (min-width: 560px) and (max-width: 899.98px) { .tnh__stack { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 559.98px) {
+  .tnh__btn, .tnh__ghost { width: 100%; justify-content: space-between; }
+  .tnh__ghost { justify-content: center; }
+  .tnh__stack { padding: 1.25rem; }
+}
+/* arriving: each piece rises in turn */
+.tnh [data-r] { transition: opacity .7s ease, transform .9s cubic-bezier(.16, 1, .3, 1); transition-delay: calc(var(--i, 0) * 70ms); }
+.tnh:not(.in) [data-r] { opacity: 0; transform: translateY(18px); }
+@media (prefers-reduced-motion: reduce) { .tnh [data-r] { transition: none; opacity: 1 !important; transform: none !important; } }
+/* the hero's "Open to internships & freelance" is a link to the section */
+.tn-hirelink { cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: .3em; transition: text-decoration-color .25s ease, color .25s ease; }
+@media (hover: hover) and (pointer: fine) { .tn-hirelink:hover { text-decoration-color: currentColor; } }

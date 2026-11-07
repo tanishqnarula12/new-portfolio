@@ -1,10 +1,22 @@
 # Tanishq Narula
 
-> Freelance software developer, AI builder and designer based in Jaipur, India. Builds websites, web apps,
-> AI automation and UI/UX design for startups and businesses, and works on real-world client projects. Available for freelance work, remote worldwide.
+> Software developer, AI builder and designer based in Jaipur, India: a B.Tech IT student and Software Engineering
+> Intern at Fintness Finserv, open to internships and entry-level roles, and available for freelance work (remote worldwide).
+> Builds websites, web apps, AI automation and UI/UX design.
 
 ## About
 I'm an IT student, software developer and freelance designer based in Jaipur, India. I enjoy building modern web applications, experimenting with artificial intelligence, designing intuitive interfaces and working on real-world client projects.
+
+## Looking for
+- Open to software engineering, full-stack and AI internships and entry-level roles.
+- Also available for freelance projects: websites, web apps, business software and AI tools.
+- Recruiters: email tanishqnarula60@gmail.com (résumé on request) or use "Hiring? Let's talk" on any page of https://tanishqnarula.dev/.
+
+## Stack (from his own repositories)
+- Languages: JavaScript, TypeScript, Python, SQL
+- Front end: React, Vite, Tailwind CSS, TanStack Query, React Router
+- Back end and data: Node.js, Express, REST APIs, JWT auth, Zod, PostgreSQL, Supabase
+- Also: React Native (Expo), Vitest, Supertest, pytest, Figma
 
 ## Services
 - **Web Development**: Responsive websites, web applications and business software such as CRM tools, built end to end.

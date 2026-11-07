@@ -258,12 +258,20 @@
     if (e.target.closest('#menuBtn, .mob-hdr__btn--menu')) { e.preventDefault(); setMenu(!D.getElementById('navm')?.classList.contains('open')); return; }
     if (e.target.closest('#navClose')) { setMenu(false); return; }
     if (e.target.closest('#navm a')) { setMenu(false); return; }
-    if (e.target.closest('.cta-explore-btn, button.sf__ghost')) { e.preventDefault(); const w = D.getElementById('works'); if (w) w.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth' }); else location.href = '/#works'; }
+    if (e.target.closest('.cta-explore-btn, button.sf__ghost:not([data-tn-hire])')) { e.preventDefault(); const w = D.getElementById('works'); if (w) w.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth' }); else location.href = '/#works'; }
   });
 
   /* ================================================================== the project questionnaire */
+  // two people use this: a client with a project, and a recruiter with a role. The first answer picks the path.
+  const HIRE_OPT = 'I\'m hiring: an internship or a job';
+  const HIRE_STEPS = [
+    { name: 'role', q: 'What kind of role is it?', opts: [['Internship', 'Software engineering, full-stack or AI'], ['Full-time role', 'Entry-level or graduate'],
+      ['Part-time or contract', 'A fixed term or a few hours a week'], ['Not decided yet', 'Happy to talk it through']] },
+    { name: 'start', q: 'When would it start?', opts: [['As soon as possible'], ['Within 1 to 3 months'], ['Later this year'], ['Just exploring for now']] },
+    { name: 'where', q: 'Where is the role?', opts: [['Remote'], ['On-site'], ['Hybrid'], ['Not decided yet']] },
+  ];
   const STEPS = [
-    { name: 'service', q: 'What do you need?', opts: [
+    { name: 'service', q: 'What brings you here?', opts: [[HIRE_OPT, 'Tell me about the role and the team'],
       ['Website or web app', 'A new site, a web app or an upgrade'], ['AI tool or automation', 'Smart features or a workflow that runs itself'],
       ['UI/UX design', 'Flows, wireframes and interface design'], ['Graphic design', 'Social creatives, posters and brand visuals'],
       ['Something else', 'Tell me about it in the last step']] },
@@ -273,7 +281,7 @@
     { name: 'timeline', q: 'When do you want to start?', opts: [['Within a month'], ['In 1 to 3 months'], ['I\'m flexible'], ['Just exploring for now']] },
     { name: 'client', q: 'Who is this for?', opts: [['A business'], ['A startup'], ['An agency, for one of its clients'], ['A personal project']] },
   ];
-  let tq = null, tqStep = 0, tqLast = null;
+  let tq = null, tqStep = 0, tqLast = null, tqMode = 'project', tqBase = 0;
   function buildInquiry() {
     if (tq) return tq;
     tq = D.createElement('div');
@@ -283,16 +291,18 @@
     tq.innerHTML = `<div class="modal__panel">
       <button type="button" class="x-btn" data-tq-close aria-label="Close"><svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
       <div id="tqForm">
-        <div class="mhead"><div class="mhead__tag"><span class="mhead__dot" aria-hidden="true"></span><span class="mhead__eyebrow">Start a project</span></div>
-          <h2 class="mhead__title" id="tqTitle">Tell me what you need built.</h2><small class="tq__min">Five quick questions, then I'll get back to you.</small></div>
+        <div class="mhead"><div class="mhead__tag"><span class="mhead__dot" aria-hidden="true"></span><span class="mhead__eyebrow" id="tqEye">Let's work together</span></div>
+          <h2 class="mhead__title" id="tqTitle">Tell me what brings you here.</h2><small class="tq__min" id="tqMin">Five quick questions, then I'll get back to you.</small></div>
         <form class="mform" novalidate>
           <div class="tq__top" aria-hidden="true"><span id="tqStepLbl">1 of 5</span><span class="tq__bar"><i id="tqBar"></i></span></div>
-          ${STEPS.map((s, i) => `<fieldset data-step="${i}" ${i ? 'hidden' : ''}><legend tabindex="-1">${esc(s.q)}</legend>${s.opts.map(o => opt(s.name, o)).join('')}</fieldset>`).join('')}
+          ${STEPS.map((s, i) => `<fieldset data-step="${i}"${i ? ' data-mode="project" hidden' : ''}><legend tabindex="-1">${esc(s.q)}</legend>${s.opts.map(o => opt(s.name, o)).join('')}</fieldset>`).join('')}
+          ${HIRE_STEPS.map((s, i) => `<fieldset data-step="${i + 1}" data-mode="hire" hidden><legend tabindex="-1">${esc(s.q)}</legend>${s.opts.map(o => opt(s.name, o)).join('')}</fieldset>`).join('')}
           <fieldset data-step="4" hidden><legend tabindex="-1">Last step: how do I reach you?</legend>
             <div class="mfield"><label class="mfield__lbl" for="tqName">Name</label><div class="mfield__box"><input class="mfield__input" id="tqName" name="name" autocomplete="name" maxlength="80" placeholder="Your name" required></div></div>
             <div class="mfield"><label class="mfield__lbl" for="tqEmail">Email</label><div class="mfield__box"><input class="mfield__input" id="tqEmail" name="email" type="email" autocomplete="email" maxlength="120" placeholder="you@company.com" required></div></div>
+            <div class="mfield" data-hire-only hidden><label class="mfield__lbl" for="tqCompany">Company</label><div class="mfield__box"><input class="mfield__input" id="tqCompany" name="company" autocomplete="organization" maxlength="100" placeholder="Where you're hiring for"></div></div>
             <div class="mfield"><label class="mfield__lbl" for="tqPhone">Phone <span style="text-transform:none;letter-spacing:0;opacity:.7">(optional)</span></label><div class="mfield__box"><input class="mfield__input" id="tqPhone" name="phone" type="tel" autocomplete="tel" maxlength="20" placeholder="With country code"></div></div>
-            <div class="mfield"><label class="mfield__lbl" for="tqAbout">About the project</label><div class="mfield__box"><textarea class="mfield__input" id="tqAbout" name="project" rows="4" maxlength="1500" placeholder="What are you building, and what should it achieve? Links help." required></textarea></div></div>
+            <div class="mfield"><label class="mfield__lbl" for="tqAbout" id="tqAboutLbl">About the project</label><div class="mfield__box"><textarea class="mfield__input" id="tqAbout" name="project" rows="4" maxlength="1500" placeholder="What are you building, and what should it achieve? Links help." required></textarea></div></div>
           </fieldset>
           <p class="tq__err" id="tqErr" role="alert"></p>
           <div class="tq__bot">
@@ -315,16 +325,19 @@
     tq.addEventListener('click', e => { if (e.target === tq || e.target.closest('[data-tq-close]')) closeInquiry(); });
     tq.addEventListener('mousemove', e => { const p = $('.modal__panel', tq), r = p.getBoundingClientRect(); p.style.setProperty('--mouse-x', `${e.clientX - r.left}px`); p.style.setProperty('--mouse-y', `${e.clientY - r.top}px`); });
     form.addEventListener('change', e => {
-      if (e.target.type === 'radio' && tqStep < 4) { $('#tqErr', tq).textContent = ''; setTimeout(() => goStep(tqStep + 1), reduced() ? 0 : 220); }
+      if (e.target.type !== 'radio' || tqStep >= 4) return;
+      if (e.target.name === 'service') setTqMode(e.target.value === HIRE_OPT ? 'hire' : 'project');
+      $('#tqErr', tq).textContent = ''; setTimeout(() => goStep(tqStep + 1), reduced() ? 0 : 220);
     });
     $('#tqBack', tq).addEventListener('click', () => goStep(tqStep - 1));
     form.addEventListener('submit', e => {
       e.preventDefault();
-      if (tqStep < 4) { if (!form.querySelector(`fieldset[data-step="${tqStep}"] input:checked`)) return err('Pick one to continue.'); return goStep(tqStep + 1); }
+      if (tqStep < 4) { if (!form.querySelector(`fieldset[data-step="${tqStep}"]:not([hidden]) input:checked`)) return err('Pick one to continue.'); return goStep(tqStep + 1); }
       const f = new FormData(form), data = Object.fromEntries(f.entries());
+      data.mode = tqMode;
       if (!data.name || data.name.trim().length < 2) return err('Please add your name.', '#tqName');
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((data.email || '').trim())) return err('Please add an email I can reply to.', '#tqEmail');
-      if (!data.project || data.project.trim().length < 15) return err('A sentence or two about the project, please.', '#tqAbout');
+      if (!data.project || data.project.trim().length < 15) return err(tqMode === 'hire' ? 'A sentence or two about the role, please.' : 'A sentence or two about the project, please.', '#tqAbout');
       submitInquiry(data, 'questionnaire');
     });
     tq.addEventListener('keydown', e => {
@@ -338,16 +351,37 @@
     return tq;
   }
   function err(msg, focus) { $('#tqErr', tq).textContent = msg; if (focus) $(focus, tq)?.focus(); const p = $('.modal__panel', tq); p.classList.remove('shake'); void p.offsetWidth; p.classList.add('shake'); }
+  // the path: a project (clients) or a role (recruiters). Same five steps, different questions in the middle,
+  // different words around them, and a recruiter's message goes out by email first.
+  const MAIL_ICON = '<svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
+  let waIcon = null;
+  function setTqMode(m) {
+    if (m === tqMode && tq.dataset.mode === m) return;
+    tqMode = m; tq.dataset.mode = m;
+    // answers from the other path don't travel with this one
+    $$(`fieldset[data-mode]:not([data-mode="${m}"]) input:checked`, tq).forEach(x => { x.checked = false; });
+    const hire = m === 'hire';
+    $('#tqEye', tq).textContent = hire ? 'Hiring' : 'Start a project';
+    $('#tqTitle', tq).textContent = hire ? 'Tell me about the role.' : 'Tell me what you need built.';
+    $('#tqMin', tq).textContent = hire ? 'A few quick questions, then I\'ll reply within a day.' : 'Five quick questions, then I\'ll get back to you.';
+    $$('[data-hire-only]', tq).forEach(x => { x.hidden = !hire; });
+    $('#tqAboutLbl', tq).textContent = hire ? 'About the role' : 'About the project';
+    $('#tqAbout', tq).placeholder = hire ? 'The team, what the role involves, and a link to the job post if there is one.' : 'What are you building, and what should it achieve? Links help.';
+    const badge = $('#tqNext .pill__badge', tq);
+    if (badge) { if (!waIcon) waIcon = badge.innerHTML; badge.innerHTML = hire ? MAIL_ICON : waIcon; badge.classList.toggle('pill__badge--wa', !hire); }
+    $('#tqNextLbl', tq).textContent = hire ? 'Send by email' : 'Send on WhatsApp';
+  }
   function goStep(i) {
-    tqStep = Math.max(0, Math.min(4, i));
-    $$('fieldset[data-step]', tq).forEach(f => { f.hidden = +f.dataset.step !== tqStep; });
-    $('#tqStepLbl', tq).textContent = `${tqStep + 1} of 5`;
-    $('#tqBar', tq).style.setProperty('--p', ((tqStep + 1) / 5).toFixed(2));
-    $('#tqBack', tq).hidden = tqStep === 0;
+    tqStep = Math.max(tqBase, Math.min(4, i));
+    $$('fieldset[data-step]', tq).forEach(f => { f.hidden = +f.dataset.step !== tqStep || (f.dataset.mode && f.dataset.mode !== tqMode); });
+    const n = 5 - tqBase;
+    $('#tqStepLbl', tq).textContent = `${tqStep + 1 - tqBase} of ${n}`;
+    $('#tqBar', tq).style.setProperty('--p', ((tqStep + 1 - tqBase) / n).toFixed(2));
+    $('#tqBack', tq).hidden = tqStep === tqBase;
     $('#tqNext', tq).hidden = tqStep < 4;
     $('#tqNote', tq).textContent = tqStep < 4 ? 'Pick one to continue' : 'I usually reply within a day.';
     $('#tqErr', tq).textContent = '';
-    const fs = $(`fieldset[data-step="${tqStep}"]`, tq);
+    const fs = $(`fieldset[data-step="${tqStep}"]:not([hidden])`, tq);
     const first = fs.querySelector('input:checked') || fs.querySelector('input, textarea');
     setTimeout(() => (tqStep < 4 ? fs.querySelector('legend') : first)?.focus({ preventScroll: true }), 30);
     if (tqStep < 4 && first) first.tabIndex = 0;
@@ -356,7 +390,13 @@
     buildInquiry();
     tqLast = D.activeElement;
     $('#tqForm', tq).hidden = false; $('#tqDone', tq).hidden = true;
-    if (prefill !== 'keep') { $('form', tq).reset(); goStep(0); }
+    if (prefill !== 'keep') {
+      $('form', tq).reset();
+      if (prefill === 'hire') {                      // "Hiring? Let's talk": straight onto the recruiter path
+        const h = $(`input[name="service"][value="${HIRE_OPT.replace(/"/g, '\\"')}"]`, tq); if (h) h.checked = true;
+        tqBase = 1; tq.dataset.mode = ''; setTqMode('hire'); goStep(1);
+      } else { tqBase = 0; tq.dataset.mode = ''; setTqMode('project'); goStep(0); }
+    }
     tq.hidden = false; holdScroll(true);
     requestAnimationFrame(() => requestAnimationFrame(() => tq.classList.add('open', 'on')));
   }
@@ -370,12 +410,19 @@
   W.tnOpenInquiry = openInquiry;
 
   function inquiryText(d) {
-    const lines = [`Hi Tanishq 👋`, '', 'I\'d like to talk about a project.', ''];
-    [['What I need', d.service], ['Size', d.size], ['Timeline', d.timeline], ['For', d.client], ['Name', d.name], ['Email', d.email], ['Phone', d.phone]]
+    const hire = d.mode === 'hire';
+    const lines = [`Hi Tanishq 👋`, '', hire ? 'I\'d like to talk to you about a role.' : 'I\'d like to talk about a project.', ''];
+    (hire ? [['Role', d.role], ['Start', d.start], ['Where', d.where], ['Company', d.company], ['Name', d.name], ['Email', d.email], ['Phone', d.phone]]
+          : [['What I need', d.service], ['Size', d.size], ['Timeline', d.timeline], ['For', d.client], ['Name', d.name], ['Email', d.email], ['Phone', d.phone]])
       .forEach(([k, v]) => { if (v && String(v).trim()) lines.push(`${k}: ${String(v).trim()}`); });
-    lines.push('', 'About the project:', (d.project || '').trim());
+    lines.push('', hire ? 'About the role:' : 'About the project:', (d.project || '').trim());
     return lines.join('\n');
   }
+  const subjectOf = d => d.mode === 'hire'
+    ? 'Opportunity for Tanishq' + (d.role ? ' · ' + d.role : '') + (d.company ? ' at ' + d.company.trim() : '') + (d.name ? ' — ' + d.name.trim() : '')
+    : 'New project inquiry' + (d.service ? ' · ' + d.service : '') + (d.name ? ' — ' + d.name.trim() : '');
+  // Gmail in the browser, for anyone whose computer has no mail app set up (mailto then does nothing)
+  const gmailUrl = d => `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(INQUIRY.email)}&su=${encodeURIComponent(subjectOf(d))}&body=${encodeURIComponent(inquiryText(d))}`;
   // THE place to wire the email API: with INQUIRY.endpoint set, every inquiry POSTs
   // { name, email, phone, service, size, timeline, client, project, source, page, message, sentAt } as JSON.
   async function sendInquiry(d, source) {
@@ -387,11 +434,12 @@
     }
     return { via: 'mail' };
   }
-  const mailUrl = d => `mailto:${INQUIRY.email}?subject=${encodeURIComponent('New project inquiry' + (d.service ? ' · ' + d.service : '') + (d.name ? ' — ' + d.name.trim() : ''))}&body=${encodeURIComponent(inquiryText(d))}`;
+  const mailUrl = d => `mailto:${INQUIRY.email}?subject=${encodeURIComponent(subjectOf(d))}&body=${encodeURIComponent(inquiryText(d))}`;
   const waUrl = d => `https://wa.me/${INQUIRY.whatsapp}?text=${encodeURIComponent(inquiryText(d))}`;
   // WhatsApp must open inside the click itself (a browser blocks a window opened later), so this stays synchronous.
   // If the browser refuses the new window, the email app opens with the same message instead.
   function openChannel(d) {
+    if (d.mode === 'hire') { try { location.href = mailUrl(d); } catch (e) {} return 'hire'; }   // recruiters: email first
     let w = null;
     try { w = W.open(waUrl(d), '_blank'); } catch (e) { w = null; }
     if (w) { try { w.opener = null; } catch (e) {} return 'whatsapp'; }
@@ -401,7 +449,20 @@
   function showDone(d, via, failed) {
     buildInquiry();
     const first = (d.name || '').trim().split(/\s+/)[0];
-    $('#tqDoneT', tq).textContent = via === 'api' ? `Thanks${first ? ', ' + first : ''}!` : 'Almost there';
+    $('#tqDoneT', tq).textContent = via === 'api' ? `Thanks${first ? ', ' + first : ''}!` : via === 'hire' ? `Thanks${first ? ', ' + first : ''}` : 'Almost there';
+    if (via === 'hire') {
+      $('#tqDoneP', tq).textContent = 'Your email app should now have the message ready: press send and I\'ll reply within a day. If nothing opened, use Gmail, WhatsApp or copy it below.';
+      $('#tqDoneA', tq).innerHTML =
+        `<a class="pill pill--outline msuccess__action-btn" href="${esc(gmailUrl(d))}" target="_blank" rel="noopener noreferrer"><span class="pill__in">Open in Gmail</span></a>`
+        + `<a class="pill pill--outline msuccess__action-btn" href="${esc(waUrl(d))}" target="_blank" rel="noopener noreferrer"><span class="pill__in">WhatsApp instead</span></a>`
+        + `<button type="button" class="pill pill--outline msuccess__action-btn" id="tqCopy"><span class="pill__in">Copy message</span></button>`
+        + `<p class="msuccess__alt" style="flex-basis:100%;margin:.35rem 0 0">Or write to <a href="${esc(mailUrl(d))}">${esc(INQUIRY.email)}</a></p>`;
+      $('#tqCopy', tq)?.addEventListener('click', async ev => { const el = ev.currentTarget.querySelector('.pill__in'); try { await navigator.clipboard.writeText(`To: ${INQUIRY.email}\nSubject: ${subjectOf(d)}\n\n${inquiryText(d)}`); el.textContent = 'Copied'; } catch (e) { el.textContent = 'Copy failed'; } });
+      if (!tq.classList.contains('on')) openInquiry('keep');
+      $('#tqForm', tq).hidden = true; $('#tqDone', tq).hidden = false;
+      setTimeout(() => $('#tqDoneT', tq).focus(), 40);
+      return;
+    }
     $('#tqDoneP', tq).textContent =
       via === 'api' ? 'Your inquiry is in. I\'ll reply soon.' :
       via === 'mail' ? 'WhatsApp could not open here, so your email app has the message ready instead. Press send there and I\'ll reply soon.' :
@@ -429,8 +490,18 @@
     btn.disabled = true; lbl.textContent = 'Sending…';
     sendInquiry(d, source).then(() => showDone(d, 'api'))
       .catch(() => showDone(d, openChannel(d), true))
-      .finally(() => { btn.disabled = false; lbl.textContent = 'Send on WhatsApp'; });
+      .finally(() => { btn.disabled = false; lbl.textContent = tqMode === 'hire' ? 'Send by email' : 'Send on WhatsApp'; });
   }
+
+  // "Hiring? Let's talk" (footers, the recruiter section): the questionnaire, straight onto the recruiter path.
+  // Captured before anything else so the old "View My Work" fallback can't treat it as a scroll link.
+  addEventListener('click', e => {
+    const b = e.target.closest?.('[data-tn-hire]');
+    if (!b || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault(); e.stopPropagation();
+    if (D.getElementById('navm')?.classList.contains('open')) D.getElementById('navClose')?.click();
+    openInquiry('hire');
+  }, true);
 
   // every "get in touch" opens the questionnaire, over whatever page (or room) you are on
   const CONTACT_SEL = '.cta-talk-btn, button.sf__btn, a.sf__btn, #navStart, a[href="#inquiry"], [data-contact], #mSend';
@@ -556,13 +627,32 @@
     D.documentElement.addEventListener('pointerleave', () => set(-1));
     addEventListener('blur', () => set(-1));
 
-    // the page behind a door is fetched as soon as someone shows interest, so walking in is instant
+    // the page behind a door is fetched before anyone knocks, so walking in is instant: all four rooms load
+    // quietly once the doors come into view (phones have no hover to hint with), and browsers that can prerender
+    // a page (Chrome) get speculation rules, so the room is often fully drawn before the walk even ends
     const fetched = new Set();
     function prefetch(i) {
       if (i < 0 || fetched.has(i) || !DOORS[i]) return; fetched.add(i);
       const l = D.createElement('link'); l.rel = 'prefetch'; l.href = DOORS[i].route; D.head.appendChild(l);
+      try { fetch(DOORS[i].route, { credentials: 'same-origin', priority: 'low' }).catch(() => {}); } catch (x) {}   // Safari ignores rel=prefetch
     }
     addEventListener('pointerover', e => prefetch(indexOf(e.target)), { passive: true });
+    addEventListener('pointerdown', e => prefetch(indexOf(e.target)), { passive: true });
+    try {
+      if (HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) {
+        const sr = D.createElement('script'); sr.type = 'speculationrules';
+        sr.textContent = JSON.stringify({ prerender: [{ source: 'list', urls: DOORS.map(d => d.route), eagerness: 'moderate' }] });
+        D.head.appendChild(sr);
+      }
+    } catch (x) {}
+    (() => {
+      const s = sec(); if (!s) return;
+      const all = () => DOORS.forEach((_, i) => prefetch(i));
+      if (!('IntersectionObserver' in W)) return setTimeout(all, 2500);
+      const idle = () => W.requestIdleCallback ? W.requestIdleCallback(all, { timeout: 1500 }) : setTimeout(all, 200);
+      const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); idle(); } }, { rootMargin: '0px 0px 60% 0px' });
+      io.observe(s);
+    })();
 
     // "Magic happens behind the doors" is painted on as the wall comes into view, as on the reference
     (() => {
@@ -596,8 +686,8 @@
       s.classList.add('lift');
       u.classList.add('press'); setTimeout(() => u.classList.remove('press'), 380);
       const r = reduced();
-      setTimeout(() => springs[i].set(WALK), r ? 0 : 170);
-      setTimeout(() => through(i), r ? 60 : 760);
+      setTimeout(() => springs[i].set(WALK), r ? 0 : 90);
+      setTimeout(() => through(i), r ? 60 : 420);              // the walk starts while the door is still swinging
     }
 
     // walking through: the whole wall scales up around the dark gap beside the open door until it fills the
@@ -616,7 +706,7 @@
       const tx = innerWidth / 2 - cx, ty = innerHeight / 2 - cy;
       const sEnd = Math.min(60, Math.max(innerWidth / gw, innerHeight / gh) * 1.15);
       const ease = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
-      const t0 = performance.now(), Dur = reduced() ? 1 : 1500;
+      const t0 = performance.now(), Dur = reduced() ? 1 : 900;     // a quick walk: nobody should wait to see the work
       let handed = false;
       const step = now => {
         const p = Math.min(1, (now - t0) / Dur), k = ease(p), sc = Math.exp(Math.log(sEnd) * k), f = Math.min(1, k * 1.6);
@@ -631,7 +721,7 @@
       if (!veil) { veil = D.createElement('div'); veil.className = 'wallv tn-veil'; veil.setAttribute('aria-hidden', 'true'); D.body.appendChild(veil); }
       veil.classList.add('on');
       try { sessionStorage.setItem('tnDoor', String(i)); } catch (e) {}
-      setTimeout(() => { location.href = DOORS[i].route; }, reduced() ? 0 : 260);
+      setTimeout(() => { location.href = DOORS[i].route; }, reduced() ? 0 : 80);
     }
 
     // coming back: you arrive at the wall with that door still open, and it swings shut behind you
@@ -1109,6 +1199,62 @@
     tint(); setTimeout(tint, 600);
     new MutationObserver(() => requestAnimationFrame(tint)).observe(root, { attributes: true, attributeFilter: ['data-mode'] });
   });
+
+  /* ================================================================== for recruiters (home page)
+     The site was written for clients; this is the short version for someone hiring: what Tanishq is looking for,
+     what he does now, what he has shipped, his stack (read from his own repositories) and one tap to talk.
+     It sits between the doors and the story. The hero's "Open to internships" line jumps to it. */
+  if (IS_HOME && !EMBED) safe('recruiters', () => {
+    const GH = 'https://github.com/tanishqnarula12', LI = 'https://www.linkedin.com/in/tanishq-narula-0295a7328/';
+    const CV = `mailto:${INQUIRY.email}?subject=${encodeURIComponent('Résumé request — Tanishq Narula')}&body=${encodeURIComponent('Hi Tanishq,\n\nCould you send me your résumé? I\'m hiring for:\n\n\nThanks,\n')}`;
+    const ARROW = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    const OUT = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>';
+    const STACK = [['Languages', 'JavaScript · TypeScript · Python · SQL'], ['Front end', 'React · Vite · Tailwind CSS · TanStack Query'],
+      ['Back end & data', 'Node.js · Express · REST APIs · JWT auth · PostgreSQL · Supabase'], ['Also', 'React Native (Expo) · Vitest · pytest · Figma']];
+    const mount = () => {
+      if (D.getElementById('hire')) return;
+      const story = D.getElementById('about'); if (!story || !story.parentNode) return;
+      const s = D.createElement('section');
+      s.className = 'tnh'; s.id = 'hire'; s.setAttribute('aria-labelledby', 'tnhT');
+      let k = 0; const r = () => `data-r style="--i:${k++}"`;
+      s.innerHTML = `<div class="shell tnh__in">
+        <p class="tnh__eye" ${r()}><i aria-hidden="true"></i>For recruiters &amp; hiring teams</p>
+        <h2 class="tnh__t" id="tnhT" ${r()}>Hiring an intern <span>who already ships?</span></h2>
+        <p class="tnh__lead" ${r()}>I'm a B.Tech IT student at SKIT Jaipur and a Software Engineering Intern at Fintness Finserv. I'm open to software engineering, full-stack and AI internships and entry-level roles.</p>
+        <ul class="tnh__facts">
+          <li ${r()}><b>Now</b><span>Software Engineering Intern at Fintness Finserv since May 2026: CRM features, ERP modules and internal tools for its advisors.</span></li>
+          <li ${r()}><b>Shipped</b><span>10 projects live on the web, from a school management platform to Xenio, a multi-agent AI assistant. The code is on GitHub.</span></li>
+          <li ${r()}><b>Studying</b><span>B.Tech in Information Technology at Swami Keshvanand Institute of Technology, Jaipur.</span></li>
+        </ul>
+        <div class="tnh__stack" ${r()}>${STACK.map(([h, t]) => `<div><h3>${h}</h3><p>${t}</p></div>`).join('')}</div>
+        <div class="tnh__cta" ${r()}>
+          <button type="button" class="tnh__btn" data-tn-hire>Hiring? Let's talk <b>${ARROW}</b></button>
+          <a class="tnh__ghost" href="${esc(CV)}">Request my résumé</a>
+          <a class="tnh__link" href="${LI}" target="_blank" rel="noopener noreferrer">LinkedIn ${OUT}</a>
+          <a class="tnh__link" href="${GH}" target="_blank" rel="noopener noreferrer">GitHub ${OUT}</a>
+        </div>
+      </div>`;
+      story.parentNode.insertBefore(s, story);
+      try { W.__lenis?.resize?.(); } catch (x) {}
+      // the pieces come up one after another as the section reaches you
+      if (reduced() || !('IntersectionObserver' in W)) s.classList.add('in');
+      else {
+        const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); s.classList.add('in'); } }, { rootMargin: '0px 0px -12% 0px' });
+        io.observe(s);
+      }
+      // the hero's "Open to internships & freelance" goes straight here
+      const bar = $('.hero__bar > span:first-child');
+      if (bar && !bar.dataset.tnHireLink) {
+        bar.dataset.tnHireLink = '1'; bar.setAttribute('role', 'link'); bar.tabIndex = 0; bar.classList.add('tn-hirelink');
+        const go = () => { const top = s.getBoundingClientRect().top + scrollY - 20; if (W.__lenis) W.__lenis.scrollTo(top, { duration: 1.1 }); else scrollTo({ top, behavior: reduced() ? 'auto' : 'smooth' }); };
+        bar.addEventListener('click', go);
+        bar.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+      }
+    };
+    // React draws the home page; the section goes in once it has hydrated, so the two never disagree
+    let n = 0; const wait = () => { if (hasFiber(D.getElementById('about')) || hasFiber($('.hero')) || ++n > 60) mount(); else setTimeout(wait, 150); }; wait();
+  });
+
   function initScreens() {
     const SEL = '#stack .mon__screen, #stack .phone__screen';
     const card = s => s.closest('.card');
