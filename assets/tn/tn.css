@@ -389,3 +389,11 @@ html.tn-return .loader { display: none !important; }
 .pill--outline:hover .pill__in, html[data-mode=dark] .pill--outline:hover .pill__in {
   background: rgba(var(--fg-rgb), .06); border-color: rgba(var(--fg-rgb), .35); box-shadow: none;
 }
+
+/* ------------------------------------------------------------ section labels are plain words on every page, never glass pills */
+main .eyebrow, html[data-mode=dark] main .eyebrow {
+  padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  font-size: .875rem; font-weight: 500; letter-spacing: -.005em; color: rgba(var(--fg-rgb), .6);
+}
+main .eyebrow::before, main .eyebrow:before { display: none; }
