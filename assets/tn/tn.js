@@ -1224,7 +1224,7 @@
         <h2 class="tnr__t" id="tnrT" ${r()}>Skills, and what I'm looking for</h2>
         <div class="tnr__lead" ${r()}>
           <p>I'm open to full-time software engineering, full-stack and AI roles, and to internships. I'm studying for a B.Tech in Information Technology at SKIT Jaipur, graduating in 2028.</p>
-          <p>At Fintness Finserv I built the company website, fintness.in, and I'm building Fintness CRM 2.0, where I cut the client-list payload from 61.9 MB to about 908 KB. Lately I've been exploring language models and transformers.</p>
+          <p>At Fintness Finserv I built the company website, fintness.in, and I'm building its CRM. Lately I've been exploring language models and transformers.</p>
         </div>
         <div class="tnr__grid">${SKILLS.map(([h, items]) => `<div class="tnr__card" ${r()}><span class="tnr__lbl">${esc(h)}</span><ul>${items.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}</div>
         <div class="tnr__cta" ${r()}>

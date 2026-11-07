@@ -15,7 +15,7 @@ I'm an IT student, software developer and freelance designer based in Jaipur, In
 - Currently exploring language models and transformers.
 
 ## Highlights
-- At Fintness Finserv: built the company website (fintness.in) and internal tools, including WhatsApp automation with Google Apps Script, Google Sheets and the Periskope API; building Fintness CRM 2.0, a PWA for client management and internal ERP workflows (React, Node.js, Express, PostgreSQL, Socket.io, S3 storage), where he cut the client-list payload from 61.9 MB to about 908 KB.
+- At Fintness Finserv: built the company website (fintness.in) and internal tools, including WhatsApp automation with Google Apps Script, Google Sheets and the Periskope API; building the company's CRM, a PWA for client management and internal ERP workflows (React, Node.js, Express, PostgreSQL, Socket.io, S3 storage).
 - Education: B.Tech in Information Technology, Swami Keshvanand Institute of Technology (SKIT), Jaipur, Sep 2024 to Aug 2028.
 
 ## Technical skills (from his résumé)
