@@ -410,9 +410,6 @@ main .eyebrow::before, main .eyebrow:before { display: none; }
 #about .ch.on .ch__date { color: #b8904f; }
 html[data-mode=dark] #about .ch.on .ch__date { color: #D6B26E; }
 #about .ch.on[data-tn-in] .ch__t { transform: translate3d(.35rem, 0, 0); transition: transform .6s var(--e-spring), opacity .7s var(--e-soft), filter .7s var(--e-soft); }
-/* the bar under the year glides to each chapter instead of jumping */
-#about .story__bar b { transition: transform .7s var(--e-soft); }
-#about .story__count { display: inline-block; }
 /* "How I got here.": a gold light passes through it and a short stroke draws underneath */
 #about .story__h { position: relative; }
 #about .story__h[data-tn-lit] {
@@ -430,7 +427,6 @@ html[data-mode=dark] #about .ch.on .ch__date { color: #D6B26E; }
 @media (prefers-reduced-motion: reduce) {
   #about .ch[data-tn-ch] [data-tn-s] { transform: none !important; filter: none !important; transition: opacity .3s ease; transition-delay: 0ms; }
   #about .ch.on[data-tn-in] .ch__t { transform: none; }
-  #about .story__bar b { transition: none; }
   #about .story__h[data-tn-lit] { animation: none; background: none; color: var(--foreground); }
   #about .story__h::after { transition: none; }
 }

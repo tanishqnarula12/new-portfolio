@@ -784,16 +784,12 @@
   if (IS_HOME && !EMBED) safe('story', initStory);
 
   /* ================================================================== the story, arriving as you read it */
-  // Each time the chapter changes, the date under the year slides up and settles, the counter rolls and the bar
-  // glides; the year digits keep the site's own roll.
   // Each chapter comes in when you reach it: its date, then the title, the company and each line, rising out of
-  // a soft blur. The heading gets the gold light the footer has. React redraws parts of this while you scroll, so
-  // everything hangs on data attributes and on animations React never sees.
+  // a soft blur. The heading gets the gold light the footer has. The left column (the year, its date, the counter
+  // and the bar) is left exactly as the site draws it. Everything hangs on data attributes React never touches.
   function initStoryMotion() {
     const sec = D.getElementById('about'); if (!sec) return;
     const still = reduced() || !('IntersectionObserver' in W);
-    const soft = 'cubic-bezier(.16,1,.3,1)';
-    const play = (el, frames, opts) => { if (el && el.animate && !still) { try { el.animate(frames, opts); } catch (e) {} } };
 
     // chapters: each part waits, then rises in turn
     const io = still ? null : new IntersectionObserver(es => es.forEach(e => {
@@ -815,19 +811,6 @@
       if (sec.getBoundingClientRect().bottom < innerHeight * 0.6) $$('#about .ch:not([data-tn-in])').forEach(ch => ch.setAttribute('data-tn-in', ''));
     }, { passive: true });
 
-    // a new chapter: the date settles and the counter rolls (the year keeps the site's own roll)
-    let lastCh = sec.getAttribute('data-ch');
-    new MutationObserver(() => {
-      const ch = sec.getAttribute('data-ch');
-      if (ch === lastCh) return;
-      lastCh = ch;
-      play($('.story__when', sec),
-        [{ opacity: 0, transform: 'translateY(.6em)', letterSpacing: '.32em' }, { opacity: 1, transform: 'none', letterSpacing: '.12em' }],
-        { duration: 640, easing: soft });
-      play($('.story__count', sec),
-        [{ opacity: 0, transform: 'translateY(.7em)' }, { opacity: 1, transform: 'none' }],
-        { duration: 480, easing: soft });
-    }).observe(sec, { attributes: true, attributeFilter: ['data-ch'] });
 
     // the heading lights up once it is on screen
     const h2 = $('.story__h', sec);
