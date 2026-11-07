@@ -263,9 +263,9 @@
 
   /* ================================================================== the project questionnaire */
   // two people use this: a client with a project, and a recruiter with a role. The first answer picks the path.
-  const HIRE_OPT = 'I\'m hiring: an internship or a job';
+  const HIRE_OPT = 'I\'m hiring: a full-time role or an internship';
   const HIRE_STEPS = [
-    { name: 'role', q: 'What kind of role is it?', opts: [['Internship', 'Software engineering, full-stack or AI'], ['Full-time role', 'Entry-level or graduate'],
+    { name: 'role', q: 'What kind of role is it?', opts: [['Full-time role', 'Software engineering, full-stack or AI'], ['Internship', 'Including ones that can lead to a full-time role'],
       ['Part-time or contract', 'A fixed term or a few hours a week'], ['Not decided yet', 'Happy to talk it through']] },
     { name: 'start', q: 'When would it start?', opts: [['As soon as possible'], ['Within 1 to 3 months'], ['Later this year'], ['Just exploring for now']] },
     { name: 'where', q: 'Where is the role?', opts: [['Remote'], ['On-site'], ['Hybrid'], ['Not decided yet']] },
@@ -1200,59 +1200,62 @@
     new MutationObserver(() => requestAnimationFrame(tint)).observe(root, { attributes: true, attributeFilter: ['data-mode'] });
   });
 
-  /* ================================================================== for recruiters (home page)
-     The site was written for clients; this is the short version for someone hiring: what Tanishq is looking for,
-     what he does now, what he has shipped, his stack (read from his own repositories) and one tap to talk.
-     It sits between the doors and the story. The hero's "Open to internships" line jumps to it. */
-  if (IS_HOME && !EMBED) safe('recruiters', () => {
+  /* ================================================================== for recruiters (the About page)
+     The short version for someone hiring, in the About page's own language (its title, its intro, its row of
+     rounded cards): what Tanishq is looking for, what he's doing now, his skills (from his résumé), the résumé
+     itself and one tap to talk. The home page stays as it is; its "Open to full-time roles" line links here. */
+  const RESUME = '/resume/Tanishq-Narula-Resume.pdf';
+  if (/^\/photographer\/?$/.test(path) && !EMBED) safe('recruiters', () => {
     const GH = 'https://github.com/tanishqnarula12', LI = 'https://www.linkedin.com/in/tanishq-narula-0295a7328/';
-    const CV = `mailto:${INQUIRY.email}?subject=${encodeURIComponent('Résumé request — Tanishq Narula')}&body=${encodeURIComponent('Hi Tanishq,\n\nCould you send me your résumé? I\'m hiring for:\n\n\nThanks,\n')}`;
-    const ARROW = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
     const OUT = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>';
-    const STACK = [['Languages', 'JavaScript · TypeScript · Python · SQL'], ['Front end', 'React · Vite · Tailwind CSS · TanStack Query'],
-      ['Back end & data', 'Node.js · Express · REST APIs · JWT auth · PostgreSQL · Supabase'], ['Also', 'React Native (Expo) · Vitest · pytest · Figma']];
+    const DOWN = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>';
+    const SKILLS = [['Languages', ['C', 'C++', 'Java', 'JavaScript', 'TypeScript', 'Python', 'SQL']],
+      ['Frameworks', ['React', 'Next.js', 'Node.js', 'Express.js', 'FastAPI', 'Tailwind CSS']],
+      ['Data & cloud', ['PostgreSQL', 'Supabase', 'Object storage', 'AWS', 'Docker', 'Vercel']],
+      ['APIs & tools', ['REST APIs', 'Razorpay', 'Google Apps Script', 'Periskope API', 'Git & GitHub']]];
     const mount = () => {
       if (D.getElementById('hire')) return;
-      const story = D.getElementById('about'); if (!story || !story.parentNode) return;
+      const main = D.getElementById('main'); if (!main) return;
       const s = D.createElement('section');
-      s.className = 'tnh'; s.id = 'hire'; s.setAttribute('aria-labelledby', 'tnhT');
+      s.className = 'tnr'; s.id = 'hire'; s.setAttribute('aria-labelledby', 'tnrT');
       let k = 0; const r = () => `data-r style="--i:${k++}"`;
-      s.innerHTML = `<div class="shell tnh__in">
-        <p class="tnh__eye" ${r()}><i aria-hidden="true"></i>For recruiters &amp; hiring teams</p>
-        <h2 class="tnh__t" id="tnhT" ${r()}>Hiring an intern <span>who already ships?</span></h2>
-        <p class="tnh__lead" ${r()}>I'm a B.Tech IT student at SKIT Jaipur and a Software Engineering Intern at Fintness Finserv. I'm open to software engineering, full-stack and AI internships and entry-level roles.</p>
-        <ul class="tnh__facts">
-          <li ${r()}><b>Now</b><span>Software Engineering Intern at Fintness Finserv since May 2026: CRM features, ERP modules and internal tools for its advisors.</span></li>
-          <li ${r()}><b>Shipped</b><span>10 projects live on the web, from a school management platform to Xenio, a multi-agent AI assistant. The code is on GitHub.</span></li>
-          <li ${r()}><b>Studying</b><span>B.Tech in Information Technology at Swami Keshvanand Institute of Technology, Jaipur.</span></li>
-        </ul>
-        <div class="tnh__stack" ${r()}>${STACK.map(([h, t]) => `<div><h3>${h}</h3><p>${t}</p></div>`).join('')}</div>
-        <div class="tnh__cta" ${r()}>
-          <button type="button" class="tnh__btn" data-tn-hire>Hiring? Let's talk <b>${ARROW}</b></button>
-          <a class="tnh__ghost" href="${esc(CV)}">Request my résumé</a>
-          <a class="tnh__link" href="${LI}" target="_blank" rel="noopener noreferrer">LinkedIn ${OUT}</a>
-          <a class="tnh__link" href="${GH}" target="_blank" rel="noopener noreferrer">GitHub ${OUT}</a>
+      s.innerHTML = `
+        <p class="eyebrow tnr__eye" ${r()}>For recruiters</p>
+        <h2 class="tnr__t" id="tnrT" ${r()}>Skills, and what I'm looking for</h2>
+        <div class="tnr__lead" ${r()}>
+          <p>I'm open to full-time software engineering, full-stack and AI roles, and to internships. I'm studying for a B.Tech in Information Technology at SKIT Jaipur, graduating in 2028.</p>
+          <p>At Fintness Finserv I built the company website, fintness.in, and I'm building Fintness CRM 2.0, where I cut the client-list payload from 61.9 MB to about 908 KB. Lately I've been exploring language models and transformers.</p>
         </div>
-      </div>`;
-      story.parentNode.insertBefore(s, story);
+        <div class="tnr__grid">${SKILLS.map(([h, items]) => `<div class="tnr__card" ${r()}><span class="tnr__lbl">${esc(h)}</span><ul>${items.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}</div>
+        <div class="tnr__cta" ${r()}>
+          <a class="tnr__btn" href="${RESUME}" target="_blank" rel="noopener">Download résumé <b>${DOWN}</b></a>
+          <button type="button" class="tnr__ghost" data-tn-hire>Hiring? Let's talk</button>
+          <a class="tnr__link" href="${LI}" target="_blank" rel="noopener noreferrer">LinkedIn ${OUT}</a>
+          <a class="tnr__link" href="${GH}" target="_blank" rel="noopener noreferrer">GitHub ${OUT}</a>
+        </div>`;
+      main.appendChild(s);
       try { W.__lenis?.resize?.(); } catch (x) {}
-      // the pieces come up one after another as the section reaches you
-      if (reduced() || !('IntersectionObserver' in W)) s.classList.add('in');
-      else {
-        const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); s.classList.add('in'); } }, { rootMargin: '0px 0px -12% 0px' });
-        io.observe(s);
-      }
-      // the hero's "Open to internships & freelance" goes straight here
-      const bar = $('.hero__bar > span:first-child');
-      if (bar && !bar.dataset.tnHireLink) {
-        bar.dataset.tnHireLink = '1'; bar.setAttribute('role', 'link'); bar.tabIndex = 0; bar.classList.add('tn-hirelink');
-        const go = () => { const top = s.getBoundingClientRect().top + scrollY - 20; if (W.__lenis) W.__lenis.scrollTo(top, { duration: 1.1 }); else scrollTo({ top, behavior: reduced() ? 'auto' : 'smooth' }); };
-        bar.addEventListener('click', go);
-        bar.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
-      }
+      const show = () => s.classList.add('in');
+      if (reduced() || !('IntersectionObserver' in W)) show();
+      else { const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); show(); } }, { rootMargin: '0px 0px -10% 0px' }); io.observe(s); }
+      if (location.hash === '#hire') setTimeout(() => { show(); const top = s.getBoundingClientRect().top + scrollY - 90; if (W.__lenis) W.__lenis.scrollTo(top, { immediate: true }); scrollTo({ top, behavior: 'auto' }); }, 120);
     };
-    // React draws the home page; the section goes in once it has hydrated, so the two never disagree
-    let n = 0; const wait = () => { if (hasFiber(D.getElementById('about')) || hasFiber($('.hero')) || ++n > 60) mount(); else setTimeout(wait, 150); }; wait();
+    // React draws this page; the section goes in once it has hydrated, so the two never disagree
+    let n = 0; const wait = () => { if (hasFiber(D.getElementById('main')) || ++n > 60) mount(); else setTimeout(wait, 150); }; wait();
+  });
+  // the home page's "Open to full-time roles & freelance" line opens that section
+  if (IS_HOME && !EMBED) safe('hire link', () => {
+    let n = 0;
+    const link = () => {
+      const bar = $('.hero__bar > span:first-child');
+      if (!bar || !(hasFiber($('.hero')) || n > 60)) { if (++n <= 61) setTimeout(link, 150); return; }
+      if (bar.dataset.tnHireLink) return;
+      bar.dataset.tnHireLink = '1'; bar.setAttribute('role', 'link'); bar.tabIndex = 0; bar.classList.add('tn-hirelink');
+      const go = () => { location.href = '/photographer/#hire'; };
+      bar.addEventListener('click', go);
+      bar.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    };
+    link();
   });
 
   function initScreens() {

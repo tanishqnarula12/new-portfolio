@@ -675,56 +675,50 @@ body:has(#stack) #loader, body:has(main.shell) #loader { display: none !importan
   .navm::before { opacity: 1; }
 }
 
-/* ================================================================== for recruiters (home, tn.js "recruiters") */
-.tnh { --t-fg: #1A1818; --t-rgb: 26, 24, 24; --t-acc: #A4552C; position: relative; color: var(--t-fg); }
-html[data-mode=dark] .tnh { --t-fg: #E8E4E0; --t-rgb: 232, 228, 224; --t-acc: #D9A07C; }
-.tnh__in { padding-top: clamp(80px, 11vw, 150px); padding-bottom: clamp(80px, 11vw, 150px); }
-.tnh__eye { display: inline-flex; align-items: center; gap: .6rem; margin: 0 0 1.25rem; font-size: .875rem; font-weight: 500; color: rgba(var(--t-rgb), .6); }
-.tnh__eye i { width: .5rem; height: .5rem; border-radius: 50%; background: #8FBF7A; box-shadow: 0 0 0 0 rgba(143, 191, 122, .6); animation: sfPulse 2.2s ease-out infinite; }
-.tnh__t { margin: 0 0 1.25rem; font-size: clamp(2.25rem, 5.6vw, 4.75rem); font-weight: 600; line-height: .98; letter-spacing: -.035em; }
-.tnh__t span { display: block; color: rgba(var(--t-rgb), .42); }
-.tnh__lead { max-width: 54ch; margin: 0 0 clamp(2.5rem, 5vw, 4rem); font-size: 1.0625rem; line-height: 1.6; color: rgba(var(--t-rgb), .72); }
-.tnh__facts { list-style: none; margin: 0 0 clamp(2.5rem, 5vw, 3.5rem); padding: 0; display: grid; gap: 1.25rem 2.5rem; }
-.tnh__facts li { display: grid; gap: .5rem; align-content: start; padding-top: 1.1rem; border-top: 1px solid rgba(var(--t-rgb), .14); }
-.tnh__facts b { font: 600 .75rem/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--t-acc); }
-.tnh__facts span { font-size: 1rem; line-height: 1.55; color: rgba(var(--t-rgb), .85); }
-.tnh__stack { display: grid; gap: 1.25rem 2rem; margin: 0 0 clamp(2.5rem, 5vw, 3.5rem); padding: 1.5rem; border-radius: 1.25rem;
-  background: rgba(var(--t-rgb), .04); border: 1px solid rgba(var(--t-rgb), .08); }
-.tnh__stack h3 { margin: 0 0 .4rem; font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: rgba(var(--t-rgb), .5); }
-.tnh__stack p { margin: 0; font-size: .9375rem; line-height: 1.5; font-weight: 500; }
-.tnh__cta { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.25rem; }
-.tnh__btn { display: inline-flex; align-items: center; gap: .8rem; height: 3.5rem; padding: 0 .55rem 0 1.6rem; border: 0; border-radius: 999px;
-  background: var(--t-fg); color: #F8F6F2; font: inherit; font-size: 1rem; font-weight: 600; cursor: pointer;
-  transition: transform .35s cubic-bezier(.16, 1, .3, 1), box-shadow .35s ease; }
-html[data-mode=dark] .tnh__btn { color: #141212; }
-.tnh__btn b { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: rgba(255, 255, 255, .14); }
-html[data-mode=dark] .tnh__btn b { background: rgba(0, 0, 0, .1); }
-.tnh__btn svg { width: 1.05rem; height: 1.05rem; transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
-.tnh__ghost { display: inline-flex; align-items: center; height: 3.5rem; padding: 0 1.5rem; border-radius: 999px; border: 1px solid rgba(var(--t-rgb), .22);
-  color: var(--t-fg); font-weight: 600; text-decoration: none; transition: background .25s ease, border-color .25s ease, transform .2s ease; }
-.tnh__link { display: inline-flex; align-items: center; gap: .35rem; color: rgba(var(--t-rgb), .75); font-weight: 600; text-decoration: none; transition: color .2s ease; }
-.tnh__link svg { width: 1rem; height: 1rem; }
+/* ================================================================== for recruiters (About page, tn.js "recruiters")
+   Built from the About page's own parts: its eyebrow, a smaller cut of its title, its intro paragraph and its
+   rounded experience cards (same border, radius, tint and label style), then the résumé and a way to talk. */
+.tnr { margin-top: clamp(4.5rem, 9vw, 7.5rem); padding-bottom: clamp(3rem, 6vw, 5rem); scroll-margin-top: 6rem; }
+.tnr__eye { display: block; }
+.tnr__t { margin: 0; font-size: clamp(2rem, 4.2vw, 3.25rem); font-weight: 700; line-height: 1.1; letter-spacing: -.03em; }
+.tnr__lead { max-width: 42rem; margin-top: 1.25rem; }
+.tnr__lead p { margin: 0 0 .9rem; font-size: 1.125rem; line-height: 1.6; opacity: .85; }
+.tnr__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+.tnr__card { border-radius: 1.5rem; padding: 1.6rem 1.75rem 1.75rem; border: 1px solid rgba(26, 23, 21, .18);
+  background: rgba(26, 23, 21, .025); box-shadow: inset 0 1px 1px rgba(255, 255, 255, .8), 0 4px 16px -4px rgba(0, 0, 0, .06); }
+html[data-mode=dark] .tnr__card { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .24); box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, .25); }
+.tnr__lbl { display: block; margin-bottom: 1rem; font-size: .75rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; opacity: .6; }
+.tnr__card ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .45rem 1rem; }
+.tnr__card li { font-size: 1.0625rem; font-weight: 600; letter-spacing: -.01em; }
+.tnr__cta { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.25rem; margin-top: 2.5rem; }
+.tnr__btn { display: inline-flex; align-items: center; gap: .8rem; height: 3.25rem; padding: 0 .5rem 0 1.5rem; border-radius: 999px;
+  background: #1A1818; color: #F8F6F2; font-size: 1rem; font-weight: 600; text-decoration: none; transition: transform .35s cubic-bezier(.16, 1, .3, 1), box-shadow .35s ease; }
+html[data-mode=dark] .tnr__btn { background: #E8E4E0; color: #141212; }
+.tnr__btn b { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: rgba(255, 255, 255, .14); }
+html[data-mode=dark] .tnr__btn b { background: rgba(0, 0, 0, .1); }
+.tnr__btn svg { width: 1rem; height: 1rem; transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
+.tnr__ghost { display: inline-flex; align-items: center; height: 3.25rem; padding: 0 1.4rem; border-radius: 999px; border: 1px solid rgba(26, 23, 21, .22);
+  background: none; color: inherit; font: inherit; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background .25s ease, border-color .25s ease, transform .2s ease; }
+html[data-mode=dark] .tnr__ghost { border-color: rgba(255, 255, 255, .26); }
+.tnr__link { display: inline-flex; align-items: center; gap: .35rem; color: inherit; opacity: .72; font-weight: 600; text-decoration: none; transition: opacity .2s ease; }
+.tnr__link svg { width: 1rem; height: 1rem; }
 @media (hover: hover) and (pointer: fine) {
-  .tnh__btn:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -14px rgba(0, 0, 0, .45); }
-  .tnh__btn:hover svg { transform: translateX(3px); }
-  .tnh__ghost:hover { background: rgba(var(--t-rgb), .05); border-color: rgba(var(--t-rgb), .4); }
-  .tnh__link:hover { color: var(--t-fg); }
+  .tnr__btn:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -14px rgba(0, 0, 0, .45); }
+  .tnr__btn:hover svg { transform: translateY(2px); }
+  .tnr__ghost:hover { background: rgba(26, 23, 21, .05); border-color: rgba(26, 23, 21, .4); }
+  html[data-mode=dark] .tnr__ghost:hover { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .45); }
+  .tnr__link:hover { opacity: 1; }
 }
-.tnh__btn:active, .tnh__ghost:active { transform: scale(.97); transition-duration: .1s; }
-@media (min-width: 900px) {
-  .tnh__facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .tnh__stack { grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 1.75rem 2rem; }
-}
-@media (min-width: 560px) and (max-width: 899.98px) { .tnh__stack { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tnr__btn:active, .tnr__ghost:active { transform: scale(.97); transition-duration: .1s; }
 @media (max-width: 559.98px) {
-  .tnh__btn, .tnh__ghost { width: 100%; justify-content: space-between; }
-  .tnh__ghost { justify-content: center; }
-  .tnh__stack { padding: 1.25rem; }
+  .tnr__card { padding: 1.35rem 1.4rem 1.45rem; }
+  .tnr__btn, .tnr__ghost { width: 100%; justify-content: center; }
+  .tnr__btn { justify-content: space-between; }
 }
-/* arriving: each piece rises in turn */
-.tnh [data-r] { transition: opacity .7s ease, transform .9s cubic-bezier(.16, 1, .3, 1); transition-delay: calc(var(--i, 0) * 70ms); }
-.tnh:not(.in) [data-r] { opacity: 0; transform: translateY(18px); }
-@media (prefers-reduced-motion: reduce) { .tnh [data-r] { transition: none; opacity: 1 !important; transform: none !important; } }
-/* the hero's "Open to internships & freelance" is a link to the section */
+/* arriving: each piece rises in turn, as the rest of the About page does */
+.tnr [data-r] { transition: opacity .7s ease, transform .9s cubic-bezier(.16, 1, .3, 1); transition-delay: calc(var(--i, 0) * 70ms); }
+.tnr:not(.in) [data-r] { opacity: 0; transform: translateY(18px); }
+@media (prefers-reduced-motion: reduce) { .tnr [data-r] { transition: none; opacity: 1 !important; transform: none !important; } }
+/* the hero's "Open to full-time roles & freelance" links to the recruiter section on the About page */
 .tn-hirelink { cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: .3em; transition: text-decoration-color .25s ease, color .25s ease; }
 @media (hover: hover) and (pointer: fine) { .tn-hirelink:hover { text-decoration-color: currentColor; } }
