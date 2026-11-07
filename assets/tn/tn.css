@@ -535,3 +535,84 @@ html.tnv-open .tnc { display: none; }
   box-shadow: 0 -1px 0 rgba(255, 255, 255, .6) inset, 0 30px 60px -30px rgba(26, 24, 24, .35), 0 -12px 40px -24px rgba(26, 24, 24, .25); }
 html[data-mode="dark"] #rn ~ main .card { background: #232020; border-color: rgba(232, 228, 224, .08);
   box-shadow: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 30px 60px -30px rgba(0, 0, 0, .8), 0 -12px 40px -20px rgba(0, 0, 0, .7); }
+
+/* ================================================================== phones
+   The platform layer first (mobile-native): no tap flash, no font inflation, instant taps, no text
+   selection on controls, no input zoom, hover only where there is a mouse. Then a phone layout:
+   the cord becomes a switch in the header, the bar is solid, the hero's pieces stop colliding,
+   and the rooms become a calm feed instead of a stack of cards covering each other. */
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+button, a, [role="button"], summary { touch-action: manipulation; }
+button, [role="button"], .pill, .live, .code, .backd, .sf__btn, .sf__ghost, .mob-hdr__btn, .rn__menu, .chip[href] {
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+/* iOS zooms into any field under 16px and never zooms back out */
+@media (pointer: coarse) {
+  input:not([type=checkbox]):not([type=radio]):not([type=range]), textarea, select { font-size: 16px !important; }
+}
+/* a tap is not a hover: undo the template's lifts and tints on touch screens, keep a press instead */
+@media (hover: none) {
+  .mob-hdr__btn:hover, .mob-hdr__brand:hover, .sf__btn:hover, .live:hover, .code:hover, .chip:hover, .pill:hover, .backd:hover, .totop:hover {
+    transform: none; box-shadow: none; }
+  .mob-hdr__btn:hover { color: inherit; border-color: rgba(var(--fg-rgb), .16); }
+  html[data-mode=dark] .mob-hdr__btn:hover { color: #f8f6f2; border-color: rgba(255, 255, 255, .16); }
+  .live:active, .sf__btn:active, .pill:active, .mob-hdr__btn:active, .backd:active, .code:active, .chip[href]:active { transform: scale(.96); transition-duration: .1s; }
+}
+/* a tapped card keeps the device at its resting angle instead of the hover angle */
+@media (hover: none) and (max-width: 899.98px) {
+  .card:hover .mon, .card.flip:hover .mon { transform: rotateY(-10deg) rotateX(3deg); }
+  .card:hover .phone, .card.flip:hover .phone { transform: rotateY(-14deg) rotateX(4deg) rotateZ(.6deg); }
+}
+/* the footer's "Local time" and its clock were touching (flex drops the space between them) */
+.sf li.st > span { margin-left: .3em; }
+/* contact and about: the back link and the small label under it were running into one line */
+main a + .eyebrow { display: block; }
+/* about: in the experience cards the place and the city never touch, at any width */
+main .chip > div[style*="space-between"] { gap: .35rem 1rem; flex-wrap: wrap; }
+main .chip[style*="min-height"] { align-items: stretch !important; }   /* .chip centres its rows; these cards read left to right */
+
+@media (max-width: 768px) {
+  /* the cord would hang over every heading on a narrow screen: the switch lives in the header instead (tn.js) */
+  #cord { display: none !important; }
+  /* the header bar: solid, not frosted glass */
+  .mob-hdr .mob-hdr__in, html[data-mode=dark] .mob-hdr .mob-hdr__in { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .mob-hdr .mob-hdr__in { background: #FBFAF8; border: 1px solid rgba(26, 23, 21, .1); box-shadow: 0 10px 30px -14px rgba(26, 23, 21, .3); }
+  html[data-mode=dark] .mob-hdr .mob-hdr__in { background: #1F1C1C; border-color: rgba(255, 255, 255, .1); box-shadow: 0 12px 30px -12px rgba(0, 0, 0, .7); }
+  .mob-hdr .mob-hdr__btn, html[data-mode=dark] .mob-hdr .mob-hdr__btn { -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
+  /* the hero: the ability-card tag floats on the photo, above the two buttons instead of under them */
+  #fig .fig__card { bottom: 76px; }
+  /* the portrait fills the screen under the headline instead of sitting small at the bottom. Its box keeps the
+     photo's own shape (3:4) and takes its height from the screen, so on every phone the top of the head lands
+     just under the headline (about 245px down); the width cap keeps tall phones from zooming in too far.
+     The sides of the photo are plain background, so the hero simply clips them. */
+  .hero { overflow: clip; }
+  #fig { --fig-h: min(calc(129.87svh - 318px), 186.7vw); height: var(--fig-h) !important; width: auto !important; max-width: none !important; }
+  /* the outline button sits on the photo: give it the page colour so it reads over the dark shirt */
+  .hero .cta-explore-btn { background: #F8F6F2; }
+  html[data-mode=dark] .hero .cta-explore-btn { background: #161414; }
+  /* about: experience cards size to their words, and the place and city no longer touch */
+  main .chip[style*="min-height"] { min-height: 0 !important; height: auto !important; align-items: stretch !important; gap: 1.5rem; padding: 1.5rem !important; }   /* React rewrites the style with spaces; .chip itself is 44px tall */
+  /* page titles line up with the text under them (the template centres them on phones) */
+  main.shell h1.h1 { text-align: left !important; align-items: flex-start !important; }
+}
+
+/* the rooms on a phone: a feed. Every card at its own height, nothing sliding over what you're reading */
+@media (max-width: 899.98px) {
+  #stack .card { position: relative !important; top: auto !important; transform: none !important; margin-bottom: 20px; }
+  #stack .card .card__dim { display: none; }
+  #stack .card__in { max-height: none !important; padding: 14px 18px 22px; gap: 10px; }
+  #stack .card .desc { display: block !important; -webkit-line-clamp: unset !important; overflow: visible !important; margin-bottom: 16px; }
+  #stack .card .feats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin-bottom: 18px; }
+  #stack .card .feats li { font-size: 13px; }
+  #stack .card__info .acts, #stack .card__info { row-gap: 10px; }
+  #stack { padding-bottom: 6vh; }
+}
+
+/* the header badge on phones: Tanishq's avatar instead of the "T." monogram */
+.mob-hdr__badge { background: url(/images/profile/avatar.png) 50% 45% / 112% no-repeat, rgba(26, 23, 21, .06) !important; overflow: hidden; }
+html[data-mode=dark] .mob-hdr__badge { background: url(/images/profile/avatar.png) 50% 45% / 112% no-repeat, rgba(255, 255, 255, .1) !important; }
+.mob-hdr__badge > * { visibility: hidden; }
+
+/* the questionnaire: a solid sheet, not frosted glass (on a phone the hero showed through it) */
+.tq .modal__panel { background: #F3F0EC; -webkit-backdrop-filter: none; backdrop-filter: none; }
+html[data-mode=dark] .tq .modal__panel { background: #1F1C1C; }
+@media (max-width: 768px) { .tq .modal__panel { padding: 1.6rem 1.25rem 1.4rem; border-radius: 24px; } }

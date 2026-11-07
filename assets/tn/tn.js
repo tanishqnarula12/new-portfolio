@@ -1011,7 +1011,7 @@
   const IS_ROOM = /^\/(web-developer|app-developer|ui-ux-designer|graphic-designer)\/?$/.test(path);
   if (IS_ROOM && !EMBED) safe('screens', initScreens);
   // the floating "Back to the doors" steps aside once the footer's last line is on screen, so it never sits on the copyright
-  if (!IS_HOME && !EMBED) safe('back aside', () => {
+  if (!EMBED) safe('back aside', () => {
     let raf = 0;
     const upd = () => {
       raf = 0;
@@ -1020,6 +1020,49 @@
     };
     addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(upd); }, { passive: true });
     addEventListener('resize', upd); setTimeout(upd, 400);
+  });
+
+  /* ================================================================== phones: the light switch lives in the header
+     On a narrow screen the hanging cord would sit over every heading, so CSS hides it below 769px and this puts a
+     sun / moon button beside GitHub, LinkedIn and WhatsApp. It flips the theme through the cord's own control, so
+     both stay in step. */
+  if (!EMBED) safe('mobile switch', () => {
+    const MOON = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>';
+    const SUN = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+    const mount = () => {
+      const act = $('.mob-hdr__actions'); if (!act || $('.tn-mswitch', act)) return;
+      const b = D.createElement('button');
+      b.type = 'button'; b.className = 'mob-hdr__btn tn-mswitch';
+      const paint = () => {
+        const dark = root.dataset.mode === 'dark';
+        b.innerHTML = dark ? SUN : MOON;
+        b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+      };
+      paint();
+      new MutationObserver(paint).observe(root, { attributes: true, attributeFilter: ['data-mode'] });
+      b.addEventListener('click', () => {
+        const hit = D.getElementById('cordHit');
+        if (hit && reactAlive()) hit.click(); else setMode(root.dataset.mode !== 'dark');
+      });
+      act.insertBefore(b, act.firstChild);
+    };
+    // the React header gets it only once it has hydrated, so the two never disagree
+    if (W.__next_f) { let n = 0; const wait = () => { if (hasFiber($('.mob-hdr')) || ++n > 60) mount(); else setTimeout(wait, 150); }; wait(); }
+    else mount();
+  });
+
+  /* ================================================================== the phone's status bar matches the page
+     iOS and Android tint their bar from theme-color; one fixed value gave a dark bar over a light page (or the
+     reverse). Follow the page's actual background, including when the theme flips. */
+  if (!EMBED) safe('theme color', () => {
+    const tint = () => {
+      let m = $$('meta[name="theme-color"]');
+      if (!m.length) { const t = D.createElement('meta'); t.name = 'theme-color'; D.head.appendChild(t); m = [t]; }
+      const bg = getComputedStyle(D.body).backgroundColor;
+      if (bg && bg !== 'rgba(0, 0, 0, 0)') m.forEach(x => { x.removeAttribute('media'); x.content = bg; });
+    };
+    tint(); setTimeout(tint, 600);
+    new MutationObserver(() => requestAnimationFrame(tint)).observe(root, { attributes: true, attributeFilter: ['data-mode'] });
   });
   function initScreens() {
     const SEL = '#stack .mon__screen, #stack .phone__screen';
