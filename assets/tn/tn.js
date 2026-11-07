@@ -165,6 +165,22 @@
     if (!reactAlive()) b.classList.toggle('show', scrollY > innerHeight * 0.7);
   }
   addEventListener('scroll', () => { if (!ttRaf) ttRaf = requestAnimationFrame(totop); }, { passive: true });
+  // the trip back up goes through the smooth-scroll engine when it is running: a native smooth scroll gets cancelled
+  // by a scroll that is still gliding, which is why it only worked sometimes. Every page, every back-to-top button.
+  addEventListener('click', e => {
+    if (e.button) return;
+    const b = e.target.closest('button.totop, [data-nav="top"], .sf__bot button');
+    if (!b) return;
+    if (b.matches('.sf__bot button') && !/top/i.test(b.textContent + ' ' + (b.getAttribute('aria-label') || ''))) return;
+    e.preventDefault(); e.stopPropagation();
+    const L = W.__lenis;
+    if (L && typeof L.scrollTo === 'function') {
+      L.start && L.start();
+      L.scrollTo(0, { duration: reduced() ? 0 : 1.15, easing: x => 1 - Math.pow(1 - x, 3), force: true });
+    } else scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' });
+    const top = D.getElementById('main') || D.querySelector('main');
+    if (top && e.detail === 0) { top.setAttribute('tabindex', '-1'); top.focus({ preventScroll: true }); }   // keyboard users land at the top too
+  }, true);
   addEventListener('resize', totop);
   new MutationObserver(() => totop()).observe(root, { attributes: true, attributeFilter: ['data-mode'] });
 
@@ -240,7 +256,6 @@
     if (e.target.closest('#menuBtn, .mob-hdr__btn--menu')) { e.preventDefault(); setMenu(!D.getElementById('navm')?.classList.contains('open')); return; }
     if (e.target.closest('#navClose')) { setMenu(false); return; }
     if (e.target.closest('#navm a')) { setMenu(false); return; }
-    if (e.target.closest('button.totop, .sf__bot button')) { e.preventDefault(); scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); return; }
     if (e.target.closest('.cta-explore-btn, button.sf__ghost')) { e.preventDefault(); const w = D.getElementById('works'); if (w) w.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth' }); else location.href = '/#works'; }
   });
 

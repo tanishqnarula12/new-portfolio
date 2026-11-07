@@ -35,3 +35,4 @@ I'm an IT student, software developer and freelance designer based in Jaipur, In
 - [https://tanishqnarula.dev/photographer/](https://tanishqnarula.dev/photographer/): About Tanishq Narula.
 - [https://tanishqnarula.dev/contact/](https://tanishqnarula.dev/contact/): Contact: start a project on WhatsApp or by email.
 - [https://tanishqnarula.dev/privacy/](https://tanishqnarula.dev/privacy/): Privacy policy.
+- [https://tanishqnarula.dev/credits/](https://tanishqnarula.dev/credits/): Credits and copyright.
