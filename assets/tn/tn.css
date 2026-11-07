@@ -483,5 +483,55 @@ html.tnv-open .tnc { display: none; }
 
 /* the floating "Back to the doors" steps aside over the footer's last line (tn.js sets data-tn-away) */
 .backd { transition: opacity .3s ease, transform .45s cubic-bezier(.16, 1, .3, 1), background .25s ease, border-color .25s ease; }
-.backd[data-tn-away] { opacity: 0; transform: translateY(12px); pointer-events: none; }
+@media (min-width: 1200px) { .backd[data-tn-away] { opacity: 0; transform: translateY(12px); pointer-events: none; } }   /* below 1200px it sits in the header bar */
 .totop[data-tn-away] { opacity: 0 !important; pointer-events: none !important; }
+
+/* ================================================================== one room header in every room
+   Web Development is still drawn by the template's stylesheet, which floats the bar as a frosted pill with a dark
+   "Back to the doors". These rules give it the plain bar and the light back button of the other three rooms; every
+   value below was measured on those rooms, so they don't change. #rn outranks the template's dark-mode rules. */
+#rn { font-size: 16px; color: var(--fg); position: sticky; top: 0; left: auto; right: auto; z-index: 40; display: block; pointer-events: auto; opacity: 1; transform: none;
+  background: var(--bg); box-shadow: none; transition: background .35s ease, box-shadow .35s ease; }
+#rn.away { opacity: 1; transform: none; }
+#rn.stuck { box-shadow: 0 1px 0 rgba(var(--fg-rgb), .1); }
+#rn .rn__in { width: auto; min-width: 0; max-width: 1408px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding: 17.6px max(16px, env(safe-area-inset-right)) 17.6px max(16px, env(safe-area-inset-left));
+  background: none; border: 0; border-radius: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; transition: padding .35s ease; }
+#rn.stuck .rn__in { padding-block: 12.8px; }
+@media (min-width: 1024px) { #rn .rn__in { padding-inline: 88px; } }
+#rn nav ul { gap: 22.4px; }
+#rn nav a { display: inline; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; transform: none; transition: none;
+  color: var(--fg); font-size: 16px; font-weight: 400; letter-spacing: normal; text-decoration: none; }
+#rn nav a:hover { background: none; border: 0; box-shadow: none; transform: none; color: var(--fg); }
+#rn nav a[aria-current=page] { color: var(--fg) !important; background: none !important; border: 0 !important; box-shadow: none !important; font-weight: 400 !important; }
+#rn .rn__clock { gap: 9.6px; padding: 9.6px 14.4px; border: 1px solid rgba(var(--fg-rgb), .12); border-radius: 999px; background: none; box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--fg); font-size: 14px; font-weight: 500; }
+#rn .rn__clock span { color: rgba(var(--fg-rgb), .68); }
+#rn .rn__clock b { color: var(--fg); font-weight: 700; }
+#rn .rn__menu { height: 44px; padding: 0 16.8px 0 15.2px; gap: 8px; border: 1px solid rgba(var(--fg-rgb), .12); border-radius: 999px; background: none;
+  box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--fg); font: 500 15px/1 'Onest', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+@media (min-width: 1200px) { #rn nav { display: block; } #rn nav ul { display: flex; } #rn .rn__clock { display: flex; } #rn .rn__menu { display: none; } }
+@media (max-width: 1199.98px) { #rn nav, #rn .rn__clock { display: none; } #rn .rn__menu { display: inline-flex; align-items: center; order: 99; margin-left: auto; } }
+/* the page under it no longer has to clear a floating bar */
+#rn ~ main#main.wrap { padding-top: 24px; }
+/* "Back to the doors": the light pill of the other rooms. Wide: bottom-left corner. Narrow: in the bar, left of Menu. */
+#rn ~ .backd { position: fixed; z-index: 60; display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 17.6px 0 13.6px;
+  border: 1px solid rgba(var(--fg-rgb), .14); border-radius: 999px; background: rgba(var(--fg-rgb), .05); color: var(--fg);
+  font: 500 15px/1 'Onest', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; transform: none; }
+@media (hover: hover) { #rn ~ .backd:hover { background: rgba(var(--fg-rgb), .1); border-color: rgba(var(--fg-rgb), .26); transform: none; } }
+@media (min-width: 1200px) {
+  #rn ~ .backd { top: auto; left: max(24px, env(safe-area-inset-left)); bottom: max(24px, calc(env(safe-area-inset-bottom) + 16px));
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 12px 30px -12px rgba(0, 0, 0, .45), 0 0 0 1px rgba(255, 255, 255, .08); }
+}
+@media (max-width: 1199.98px) {
+  #rn ~ .backd { top: max(17.6px, env(safe-area-inset-top)); bottom: auto; left: max(16px, env(safe-area-inset-left));
+    box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; transition: top .35s ease, background .25s ease, border-color .25s ease; }
+  #rn.stuck ~ .backd { top: 12.8px; }
+}
+#rn ~ .backd svg { width: 16.8px; height: 16.8px; }
+#rn .rn__menu svg { width: 17.6px; height: 17.6px; }
+/* the project cards: solid, like the other rooms (the template drew Web Development's as frosted glass) */
+#rn ~ main .card { background: #F3F0EC; border: 1px solid rgba(26, 24, 24, .08); -webkit-backdrop-filter: none; backdrop-filter: none;
+  box-shadow: 0 -1px 0 rgba(255, 255, 255, .6) inset, 0 30px 60px -30px rgba(26, 24, 24, .35), 0 -12px 40px -24px rgba(26, 24, 24, .25); }
+html[data-mode="dark"] #rn ~ main .card { background: #232020; border-color: rgba(232, 228, 224, .08);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 30px 60px -30px rgba(0, 0, 0, .8), 0 -12px 40px -20px rgba(0, 0, 0, .7); }
