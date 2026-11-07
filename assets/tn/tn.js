@@ -638,6 +638,9 @@
     }
     addEventListener('pointerover', e => prefetch(indexOf(e.target)), { passive: true });
     addEventListener('pointerdown', e => prefetch(indexOf(e.target)), { passive: true });
+    // the zoom is one big layer: build it as soon as a finger or the mouse reaches a door, not on the first zoom frame
+    const ready = e => { const i = indexOf(e.target), s = sec(); if (i >= 0 && s && !s.style.willChange) { s.style.willChange = 'transform'; s.classList.add('tn-armed'); } };
+    addEventListener('pointerover', ready, { passive: true }); addEventListener('pointerdown', ready, { passive: true });
     try {
       if (HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) {
         const sr = D.createElement('script'); sr.type = 'speculationrules';
@@ -687,10 +690,11 @@
       u.classList.add('press'); setTimeout(() => u.classList.remove('press'), 380);
       const r = reduced();
       setTimeout(() => springs[i].set(WALK), r ? 0 : 40);
-      setTimeout(() => through(i), r ? 0 : 140);               // the walk starts while the door is still swinging
-      // the room starts loading straight away: the swing and the walk play while it loads, never before it.
-      // The browser keeps this page on screen until the room is ready to draw, then swaps to it.
-      setTimeout(() => go(i), r ? 0 : 320);                    // long enough to see the door swing, never longer
+      setTimeout(() => through(i), r ? 0 : 120);               // the walk starts while the door is still swinging
+      // the room loads once the walk reaches the dark of the doorway: Safari stops drawing a page the moment the
+      // next one starts loading, so loading any earlier froze the swing half way. The room then opens out of the
+      // dark through the arch (tn.css, view transitions), and it was already fetched when the doors came into view.
+      if (r) go(i);
     }
     function go(i) {
       try { sessionStorage.setItem('tnDoor', String(i)); } catch (e) {}
@@ -713,13 +717,13 @@
       const tx = innerWidth / 2 - cx, ty = innerHeight / 2 - cy;
       const sEnd = Math.min(60, Math.max(innerWidth / gw, innerHeight / gh) * 1.15);
       const ease = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
-      const t0 = performance.now(), Dur = reduced() ? 1 : 900;     // a quick walk: nobody should wait to see the work
+      const t0 = performance.now(), Dur = reduced() ? 1 : 640;     // a quick walk: nobody should wait to see the work
       let handed = false;
       const step = now => {
         const p = Math.min(1, (now - t0) / Dur), k = ease(p), sc = Math.exp(Math.log(sEnd) * k), f = Math.min(1, k * 1.6);
         s.style.transform = `translate(${(tx * f).toFixed(2)}px, ${(ty * f).toFixed(2)}px) scale(${sc.toFixed(4)})`;
         // the room is already loading; if it isn't drawn by the end of the walk, the dark of the gap holds the screen
-        if (!handed && (p >= 0.85 || sc >= sEnd / 1.15)) { handed = true; walkIn(i); }
+        if (!handed && (p >= 0.84 || sc >= sEnd / 1.15)) { handed = true; walkIn(i); }
         if (p < 1) walkRaf = requestAnimationFrame(step);
       };
       walkRaf = requestAnimationFrame(step);
@@ -728,6 +732,7 @@
     function walkIn(i) {
       if (!veil) { veil = D.createElement('div'); veil.className = 'wallv tn-veil'; veil.setAttribute('aria-hidden', 'true'); D.body.appendChild(veil); }
       veil.classList.add('on');
+      setTimeout(() => go(i), reduced() ? 0 : 110);           // once the dark has landed: the page can rest on it while the room loads
     }
 
     // coming back: you arrive at the wall with that door still open, and it swings shut behind you
@@ -1107,6 +1112,26 @@
      and a phone design becomes a column you can scroll yourself. Over a screen, the cursor says what a click does. */
   const IS_ROOM = /^\/(web-developer|app-developer|ui-ux-designer|graphic-designer)\/?$/.test(path);
   if (IS_ROOM && !EMBED) safe('screens', initScreens);
+
+  /* ================================================================== the next page is on its way before the click
+     Safari holds the old page still while the next one loads, so every page change is only as quick as that
+     load. A link starts loading the moment a finger touches it or the mouse rests on it (the usual 100 to 300 ms
+     before the click lands), so by the time you let go most of it is already here. */
+  if (!EMBED) safe('link warmup', () => {
+    const done = new Set();
+    const warm = e => {
+      const a = e.target.closest?.('a[href]'); if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+      let u; try { u = new URL(a.getAttribute('href'), location.href); } catch (x) { return; }
+      if (u.origin !== location.origin || u.pathname === location.pathname || /\.(pdf|mp4|jpe?g|png|webp)$/i.test(u.pathname)) return;
+      const key = u.pathname; if (done.has(key)) return; done.add(key);
+      const l = D.createElement('link'); l.rel = 'prefetch'; l.href = key; D.head.appendChild(l);
+      try { fetch(key, { credentials: 'same-origin', priority: 'low' }).catch(() => {}); } catch (x) {}
+    };
+    let hoverT = 0;
+    addEventListener('pointerover', e => { clearTimeout(hoverT); hoverT = setTimeout(() => warm(e), 65); }, { passive: true });
+    addEventListener('touchstart', warm, { passive: true });
+    addEventListener('pointerdown', warm, { passive: true });
+  });
 
   /* ================================================================== recordings: one at a time, and never stuck
      - Only the screen you're looking at plays. Phones decode one or two videos at a time at best; two playing at

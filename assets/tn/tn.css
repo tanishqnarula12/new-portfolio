@@ -334,7 +334,7 @@ html.embed body.ready, html.embed body { overflow-x: clip; }
 html.tn-walking .door-cursor { opacity: 0 !important; }
 html.tn-walking #works .doorway { cursor: default; }
 .tn-veil { z-index: 130; transition: opacity .3s ease, visibility 0s linear .3s; }
-.tn-veil.on { transition: opacity .25s ease; }
+.tn-veil.on { transition: opacity .12s ease; }
 html.tn-return .loader { display: none !important; }
 
 /* ------------------------------------------------------------ things arrive as you reach them */
@@ -755,3 +755,11 @@ html:has(#stack)::view-transition-new(root) { animation: tnArchOpen .8s cubic-be
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
 }
+
+/* the wall's side extensions and floor (normally switched on as the walk starts) are painted as soon as a finger
+   or the mouse reaches a door, so the first frame of the zoom has nothing new to draw and doesn't stutter */
+.doors.tn-armed::before, .doors.tn-armed::after { content: ""; pointer-events: none; position: absolute; top: 0; bottom: 0; width: 55vw;
+  background: linear-gradient(180deg, var(--wall-hi) 0%, var(--wall) 55%); }
+.doors.tn-armed::before { right: 100%; }
+.doors.tn-armed::after { left: 100%; }
+.doors.tn-armed .doors__floor { box-shadow: -55vw 0 0 0 var(--floor), 55vw 0 0 0 var(--floor); }
