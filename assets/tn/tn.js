@@ -94,7 +94,8 @@
   // the dialogs can scroll inside themselves while the page is held
   const scrollableInside = el => !!el?.closest?.('.modal__panel, .holo, .tnv__phone');
   addEventListener('wheel', e => { if (holds && scrollableInside(e.target)) e.stopImmediatePropagation(); }, { capture: true, passive: true });
-  addEventListener('touchmove', e => { if (holds && e.target?.closest?.('.tnv__phone')) e.stopImmediatePropagation(); }, { capture: true, passive: true });
+  // ...and the full-size viewer's own scroller and video controls (scrubbing a recording on a phone is a drag)
+  addEventListener('touchmove', e => { if (holds && e.target?.closest?.('.tnv__phone, .tnv__box video')) e.stopImmediatePropagation(); }, { capture: true, passive: true });
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -1010,6 +1011,50 @@
      and a phone design becomes a column you can scroll yourself. Over a screen, the cursor says what a click does. */
   const IS_ROOM = /^\/(web-developer|app-developer|ui-ux-designer|graphic-designer)\/?$/.test(path);
   if (IS_ROOM && !EMBED) safe('screens', initScreens);
+
+  /* ================================================================== recordings: one at a time, and never stuck
+     - Only the screen you're looking at plays. Phones decode one or two videos at a time at best; two playing at
+       once is what made them stutter or freeze. The static rooms already pick like this (their own script sets
+       window.__pickVideo); the Web Development page's React code now hands its play/pause calls here too.
+     - Every 1.5s it checks again, so a recording the browser paused by itself (a background tab, a reveal that
+       finished after the last scroll) starts again without anyone having to scroll.
+     - If the phone refuses to autoplay (iPhone Low Power Mode, data saver), the screen shows a play sign; a tap
+       opens it full size and plays from the tap, which is always allowed. */
+  if (IS_ROOM && !EMBED) safe('videos', () => {
+    const playSafe = v => {
+      const scr = v.parentElement, p = v.play();
+      if (p && p.then) p.then(() => { if (scr) delete scr.dataset.tnBlocked; })
+        .catch(e => { if (scr && e && e.name === 'NotAllowedError') scr.dataset.tnBlocked = ''; });
+    };
+    W.__tnPlaySafe = playSafe;
+    if (!W.__pickVideo) {
+      W.__pickVideo = () => {
+        if (W.__tnLb) return;
+        const cards = $$('#stack .card'), vids = $$('#stack .card video');
+        let best = null;
+        if (!D.hidden) {
+          const seen = [];
+          for (const v of vids) {
+            const c = v.closest('.card'), scr = v.parentElement;
+            if (!c || !scr || !c.classList.contains('on') || v.error) continue;
+            const r = scr.getBoundingClientRect(); if (r.height < 1) continue;
+            const top = Math.max(r.top, 0); let bot = Math.min(r.bottom, innerHeight);
+            for (let k = cards.indexOf(c) + 1; k < cards.length; k++) { const n = cards[k].getBoundingClientRect(); if (n.top < bot) bot = n.top; }
+            const area = Math.max(0, bot - top); if (area < 40) continue;
+            seen.push({ v, area, frac: area / r.height, mid: Math.abs((top + bot) / 2 - innerHeight / 2) });
+          }
+          const solid = seen.filter(x => x.frac >= .4);
+          const pick = solid.length ? solid.sort((a, b) => a.mid - b.mid)[0] : seen.sort((a, b) => b.area - a.area)[0];
+          best = pick ? pick.v : null;
+        }
+        vids.forEach(v => { if (v !== best && !v.paused) v.pause(); });
+        if (best && best.paused) playSafe(best);
+      };
+      addEventListener('scroll', () => requestAnimationFrame(() => W.__pickVideo()), { passive: true });
+    }
+    D.addEventListener('visibilitychange', () => W.__pickVideo && W.__pickVideo());
+    setInterval(() => { if (!D.hidden && !W.__tnLb && W.__pickVideo) W.__pickVideo(); }, 1500);
+  });
   // the floating "Back to the doors" steps aside once the footer's last line is on screen, so it never sits on the copyright
   if (!EMBED) safe('back aside', () => {
     let raf = 0;
@@ -1093,7 +1138,8 @@
       lb.addEventListener('click', e => { if (!e.target.closest('.tnv__box video, .tnv__phone')) close(); });
       addEventListener('keydown', e => {
         if (!cur) return;
-        if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+        // Esc in the video's own full screen only leaves full screen; the viewer stays open underneath
+        if (e.key === 'Escape') { if (D.fullscreenElement || D.webkitFullscreenElement) return; e.preventDefault(); close(); return; }
         if (e.key !== 'Tab') return;
         const f = $$('button, video, [tabindex="0"]', lb), i = f.indexOf(D.activeElement);
         e.preventDefault(); f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length]?.focus();
@@ -1120,10 +1166,16 @@
       let el, ar = r0.width / r0.height;
       if (kind === 'video') {
         el = D.createElement('video');
+        // attributes as well as properties: iOS reads the attributes when deciding whether a video may play inline
+        el.setAttribute('muted', ''); el.setAttribute('playsinline', ''); el.setAttribute('webkit-playsinline', '');
         el.muted = true; el.loop = true; el.playsInline = true; el.controls = true; el.preload = 'auto';
         el.poster = v0.poster; el.src = v0.currentSrc || v0.src;
         const t = v0.currentTime || 0;
-        el.addEventListener('loadedmetadata', () => { try { if (t) el.currentTime = t; } catch (x) {} el.play().catch(() => {}); }, { once: true });
+        // start playing inside the tap itself: a play() that comes from the tap is allowed even when the phone blocks
+        // autoplay (iPhone Low Power Mode, data saver); the moment it carries on from is set once the length is known
+        const go = () => { const p = el.play(); if (p && p.catch) p.catch(() => {}); };
+        el.__go = go;                                          // called as soon as it is in the page, still inside the tap
+        el.addEventListener('loadedmetadata', () => { try { if (t && t < el.duration - .5) el.currentTime = t; } catch (x) {} if (el.paused) go(); }, { once: true });
         if (v0.videoWidth) ar = v0.videoWidth / v0.videoHeight;
       } else if (kind === 'image') {
         const i0 = s.querySelector('img');
@@ -1140,6 +1192,7 @@
       box.className = 'tnv__box tnv__box--' + kind;
       box.style.setProperty('--sb', getComputedStyle(s).getPropertyValue('--sb').trim() || '#fff');
       box.replaceChildren(el);
+      if (el.__go) el.__go();
       $('b', cap).textContent = titleOf(s); $('span', cap).textContent = subOf(s);
       lb.setAttribute('aria-label', titleOf(s));
       if (v0) v0.pause();

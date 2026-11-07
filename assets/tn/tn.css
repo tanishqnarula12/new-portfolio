@@ -603,6 +603,9 @@ main .chip[style*="min-height"] { align-items: stretch !important; }   /* .chip 
   #stack .card .desc { display: block !important; -webkit-line-clamp: unset !important; overflow: visible !important; margin-bottom: 16px; }
   #stack .card .feats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin-bottom: 18px; }
   #stack .card .feats li { font-size: 13px; }
+  /* the small label above each title: each half stays whole, the second half drops to its own line if needed */
+  #stack .card__meta { flex-wrap: wrap; row-gap: 6px; }
+  #stack .card__meta span { white-space: nowrap; }
   #stack .card__info .acts, #stack .card__info { row-gap: 10px; }
   #stack { padding-bottom: 6vh; }
 }
@@ -616,3 +619,8 @@ html[data-mode=dark] .mob-hdr__badge { background: url(/images/profile/avatar.pn
 .tq .modal__panel { background: #F3F0EC; -webkit-backdrop-filter: none; backdrop-filter: none; }
 html[data-mode=dark] .tq .modal__panel { background: #1F1C1C; }
 @media (max-width: 768px) { .tq .modal__panel { padding: 1.6rem 1.25rem 1.4rem; border-radius: 24px; } }
+
+/* autoplay refused (iPhone Low Power Mode, data saver): the screen says "tap to watch" with a play sign */
+.mon__screen[data-tn-blocked]::after, .phone__screen[data-tn-blocked]::after {
+  background: center / 60px 60px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Ccircle cx='30' cy='30' r='30' fill='%23F8F6F2' fill-opacity='.94'/%3E%3Cpath d='M25 20.5v19l15-9.5z' fill='%231A1818'/%3E%3C/svg%3E"),
+    rgba(0, 0, 0, .18) !important; }
