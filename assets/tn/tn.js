@@ -869,7 +869,7 @@
               <span class="tc__mono">TN</span>
               <span class="tc__btag">Half code, half canvas,<br>fully curious.</span>
               <ul class="tc__doors"><li>Web Development</li><li>AI &amp; Automation</li><li>UI/UX Design</li><li>Client Work</li></ul>
-              <span class="tc__foot"><span>github · tanisnarula12</span><span>B.Tech IT · SKIT</span></span>
+              <span class="tc__foot"><span>github · tanishqnarula12</span><span>B.Tech IT · SKIT</span></span>
               <i class="tc__foil"></i><i class="tc__glare"></i>
             </span>
           </span>
@@ -1010,6 +1010,17 @@
      and a phone design becomes a column you can scroll yourself. Over a screen, the cursor says what a click does. */
   const IS_ROOM = /^\/(web-developer|app-developer|ui-ux-designer|graphic-designer)\/?$/.test(path);
   if (IS_ROOM && !EMBED) safe('screens', initScreens);
+  // the floating "Back to the doors" steps aside once the footer's last line is on screen, so it never sits on the copyright
+  if (!IS_HOME && !EMBED) safe('back aside', () => {
+    let raf = 0;
+    const upd = () => {
+      raf = 0;
+      const bot = $('.sf__bot'), away = !!bot && bot.getBoundingClientRect().top < innerHeight - 8;
+      $$('.backd, .totop').forEach(b => { if (away) b.dataset.tnAway = ''; else delete b.dataset.tnAway; });
+    };
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(upd); }, { passive: true });
+    addEventListener('resize', upd); setTimeout(upd, 400);
+  });
   function initScreens() {
     const SEL = '#stack .mon__screen, #stack .phone__screen';
     const card = s => s.closest('.card');
@@ -1103,13 +1114,16 @@
       const lv = box.querySelector('video');
       if (lv && c.v0) { try { c.v0.currentTime = lv.currentTime; } catch (x) {} }
       lb.classList.remove('on');
+      let closed = false;
       const done = () => {
+        if (closed) return; closed = true;
         box.getAnimations().forEach(a => a.cancel());
         lb.hidden = true; box.replaceChildren(); c.s.style.opacity = '';
         root.classList.remove('tnv-open'); holdScroll(false); W.__tnLb = false;
         if (W.__pickVideo) W.__pickVideo(); else if (c.wasPlaying) c.v0.play().catch(() => {});
         (c.focus && c.focus !== D.body && c.focus.focus ? c.focus : c.s).focus({ preventScroll: true });
       };
+      setTimeout(done, 700);                                   // never left open if the animation can't run (a background tab)
       const r0 = c.s.getBoundingClientRect(), r = box.getBoundingClientRect();
       if (reduced() || r0.bottom < 0 || r0.top > innerHeight) { box.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).onfinish = done; return; }
       box.animate([{ transform: 'none' }, { transform: fly(r0, { L: r.left, T: r.top, w: r.width, h: r.height }), borderRadius: '10px' }],
