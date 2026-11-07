@@ -238,7 +238,7 @@
     if (m) return m;
     m = D.createElement('div');
     m.className = 'navm'; m.id = 'navm'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', 'Menu');
-    const items = [['Home', '/'], ['Web Development', '/web-developer/'], ['AI & Automation', '/app-developer/'], ['UI/UX Design', '/ui-ux-designer/'], ['Client Work', '/graphic-designer/'], ['My story', '/#about'], ['Contact', '/contact/']];
+    const items = [['Home', '/'], ['Web Development', '/web-developer/'], ['AI & Automation', '/app-developer/'], ['UI/UX Design', '/ui-ux-designer/'], ['Client Work', '/graphic-designer/'], ['My story', '/#about'], ['About', '/photographer/'], ['Contact', '/contact/']];
     m.innerHTML = `<div class="shell navm__top"><a href="/" class="brand" aria-label="${NAME} home"><span>Tanishq.</span></a>
       <button type="button" class="close-btn" id="navClose" aria-label="Close menu" style="min-height:44px;min-width:44px;display:inline-flex;align-items:center;gap:.4rem;color:#fff">
       <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l16 16M20 4 4 20"/></svg>Close</button></div>
@@ -686,8 +686,15 @@
       s.classList.add('lift');
       u.classList.add('press'); setTimeout(() => u.classList.remove('press'), 380);
       const r = reduced();
-      setTimeout(() => springs[i].set(WALK), r ? 0 : 90);
-      setTimeout(() => through(i), r ? 60 : 420);              // the walk starts while the door is still swinging
+      setTimeout(() => springs[i].set(WALK), r ? 0 : 40);
+      setTimeout(() => through(i), r ? 0 : 140);               // the walk starts while the door is still swinging
+      // the room starts loading straight away: the swing and the walk play while it loads, never before it.
+      // The browser keeps this page on screen until the room is ready to draw, then swaps to it.
+      setTimeout(() => go(i), r ? 0 : 320);                    // long enough to see the door swing, never longer
+    }
+    function go(i) {
+      try { sessionStorage.setItem('tnDoor', String(i)); } catch (e) {}
+      location.href = DOORS[i].route;
     }
 
     // walking through: the whole wall scales up around the dark gap beside the open door until it fills the
@@ -711,7 +718,8 @@
       const step = now => {
         const p = Math.min(1, (now - t0) / Dur), k = ease(p), sc = Math.exp(Math.log(sEnd) * k), f = Math.min(1, k * 1.6);
         s.style.transform = `translate(${(tx * f).toFixed(2)}px, ${(ty * f).toFixed(2)}px) scale(${sc.toFixed(4)})`;
-        if (!handed && (sc >= sEnd / 1.15 || p >= 1)) { handed = true; walkIn(i); }
+        // the room is already loading; if it isn't drawn by the end of the walk, the dark of the gap holds the screen
+        if (!handed && (p >= 0.85 || sc >= sEnd / 1.15)) { handed = true; walkIn(i); }
         if (p < 1) walkRaf = requestAnimationFrame(step);
       };
       walkRaf = requestAnimationFrame(step);
@@ -720,8 +728,6 @@
     function walkIn(i) {
       if (!veil) { veil = D.createElement('div'); veil.className = 'wallv tn-veil'; veil.setAttribute('aria-hidden', 'true'); D.body.appendChild(veil); }
       veil.classList.add('on');
-      try { sessionStorage.setItem('tnDoor', String(i)); } catch (e) {}
-      setTimeout(() => { location.href = DOORS[i].route; }, reduced() ? 0 : 80);
     }
 
     // coming back: you arrive at the wall with that door still open, and it swings shut behind you
@@ -1126,8 +1132,10 @@
           const seen = [];
           for (const v of vids) {
             const c = v.closest('.card'), scr = v.parentElement;
-            if (!c || !scr || !c.classList.contains('on') || v.error) continue;
+            if (!c || !scr || v.error) continue;
             const r = scr.getBoundingClientRect(); if (r.height < 1) continue;
+            // a screen on view counts even before React has marked its card, so the first recording starts at once
+            if (!c.classList.contains('on') && !(r.bottom > 0 && r.top < innerHeight)) continue;
             const top = Math.max(r.top, 0); let bot = Math.min(r.bottom, innerHeight);
             for (let k = cards.indexOf(c) + 1; k < cards.length; k++) { const n = cards[k].getBoundingClientRect(); if (n.top < bot) bot = n.top; }
             const area = Math.max(0, bot - top); if (area < 40) continue;
@@ -1143,6 +1151,9 @@
       addEventListener('scroll', () => requestAnimationFrame(() => W.__pickVideo()), { passive: true });
     }
     D.addEventListener('visibilitychange', () => W.__pickVideo && W.__pickVideo());
+    // start the first recording now, not after the page has finished hydrating
+    W.__pickVideo && W.__pickVideo(); requestAnimationFrame(() => W.__pickVideo && W.__pickVideo());
+    addEventListener('load', () => W.__pickVideo && W.__pickVideo(), { once: true });
     setInterval(() => { if (!D.hidden && !W.__tnLb && W.__pickVideo) W.__pickVideo(); }, 1500);
   });
   // the floating "Back to the doors" steps aside once the footer's last line is on screen, so it never sits on the copyright

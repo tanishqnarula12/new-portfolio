@@ -722,3 +722,36 @@ html[data-mode=dark] .tnr__ghost { border-color: rgba(255, 255, 255, .26); }
 /* the hero's "Open to full-time roles & freelance" links to the recruiter section on the About page */
 .tn-hirelink { cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: .3em; transition: text-decoration-color .25s ease, color .25s ease; }
 @media (hover: hover) and (pointer: fine) { .tn-hirelink:hover { text-decoration-color: currentColor; } }
+
+/* the first project on each room page is simply there: no arrival animation between a visitor and the work */
+#stack .card:first-child .card__info > *, #stack .card:first-child .stage,
+#stack .card:first-child .mon__screen > video, #stack .card:first-child .mon__screen > img,
+#stack .card:first-child .phone__vp, #stack .card:first-child .phone__tab { transition: none !important; opacity: 1 !important; transform: none !important; }
+.glow { animation-duration: .25s !important; }
+
+/* ================================================================== walking through a door, across two pages
+   The room starts loading the moment a door is tapped (tn.js); the browser keeps the wall on screen while it
+   loads and then animates from one page to the other (cross-document view transitions: Safari 18.2+, Chrome 126+;
+   other browsers simply change page). Into a room: the zooming wall rushes past and blurs away while the room
+   opens out of a door-shaped arch in the middle of the screen, where the door's gap has just been. Every other
+   page change is a short cross-fade. */
+@view-transition { navigation: auto; }
+::view-transition-group(root) { animation-duration: .32s; }
+html:has(#stack)::view-transition-old(root) { animation: tnWalkPast .62s cubic-bezier(.55, 0, .75, .2) both; }
+html:has(#stack)::view-transition-new(root) { animation: tnArchOpen .8s cubic-bezier(.2, .9, .25, 1) both; }
+@keyframes tnWalkPast { to { transform: scale(1.7); opacity: 0; filter: blur(10px); } }
+@keyframes tnArchOpen {
+  0%   { clip-path: inset(30% 41% 18% 41% round 50vw 50vw 6px 6px); transform: scale(1.06); filter: brightness(.6); }
+  45%  { filter: brightness(1); }
+  100% { clip-path: inset(0 0 0 0 round 0 0 0 0); transform: none; filter: none; }
+}
+@media (max-width: 768px) {
+  @keyframes tnArchOpen {
+    0%   { clip-path: inset(32% 30% 20% 30% round 50vw 50vw 6px 6px); transform: scale(1.06); filter: brightness(.6); }
+    45%  { filter: brightness(1); }
+    100% { clip-path: inset(0 0 0 0 round 0 0 0 0); transform: none; filter: none; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}
