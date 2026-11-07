@@ -699,7 +699,7 @@
   function initMotion() {
     if (EMBED) return;
     const groups = [
-      ['.sf__eye, .sf__h, .sf__p, .sf__cta, .sf__cols > div, .sf__bot', 90],                  // the footer, on every page
+      ['.sf__eye, .sf__h, .sf__p, .sf__cta, .sf__cols > div', 90],                            // the footer, on every page (its last row always shows)
       ['main#main.shell > div:first-child > *', 80],                                              // About, contact, privacy: their opening lines
       ['main#main.shell > div:nth-child(2) > *', 110],                                            // About: the cards
       ['main#main section > *:not(form)', 70],
@@ -720,8 +720,11 @@
     const show = el => el.classList.add('tn-in');
     if (!('IntersectionObserver' in W) || reduced()) { els.forEach(show); }
     else {
-      const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { show(e.target); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
-      els.forEach(el => { if (el.getBoundingClientRect().top < innerHeight * 0.92) requestAnimationFrame(() => show(el)); else io.observe(el); });
+      const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { show(e.target); io.unobserve(e.target); } }), { threshold: 0 });
+      els.forEach(el => { if (el.getBoundingClientRect().top < innerHeight) requestAnimationFrame(() => show(el)); else io.observe(el); });
+      // at the end of the page everything is shown, whatever the observer thought
+      const atEnd = () => { if (innerHeight + scrollY >= D.documentElement.scrollHeight - 4) els.forEach(show); };
+      addEventListener('scroll', atEnd, { passive: true });
     }
     // "Have an idea? Let's build it.": the line lights up once it is read
     $$('.sf').forEach(sf => {
