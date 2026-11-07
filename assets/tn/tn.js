@@ -783,6 +783,82 @@
   }
   if (IS_HOME && !EMBED) safe('story', initStory);
 
+  /* ================================================================== the story, arriving as you read it */
+  // The year spins up from 0000 the first time you reach it. Each time the chapter changes, the four digits tick
+  // one after another, the date under them slides up and settles, the counter rolls and the bar glides.
+  // Each chapter comes in when you reach it: its date, then the title, the company and each line, rising out of
+  // a soft blur. The heading gets the gold light the footer has. React redraws parts of this while you scroll, so
+  // everything hangs on data attributes and on animations React never sees.
+  function initStoryMotion() {
+    const sec = D.getElementById('about'); if (!sec) return;
+    const still = reduced() || !('IntersectionObserver' in W);
+    const soft = 'cubic-bezier(.16,1,.3,1)';
+    const play = (el, frames, opts) => { if (el && el.animate && !still) { try { el.animate(frames, opts); } catch (e) {} } };
+
+    // chapters: each part waits, then rises in turn
+    const io = still ? null : new IntersectionObserver(es => es.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.setAttribute('data-tn-in', ''); io.unobserve(e.target);
+    }), { threshold: 0.12 });
+    const prime = () => {
+      $$('#about .ch').forEach(ch => {
+        if (ch.hasAttribute('data-tn-ch')) return;
+        ch.setAttribute('data-tn-ch', '');
+        const parts = [$('.ch__date', ch), $('.ch__t', ch), $('.ch__org', ch), ...$$('.ch__b > li', ch)].filter(Boolean);
+        parts.forEach((el, k) => { el.setAttribute('data-tn-s', ''); el.style.setProperty('--tn-d', Math.min(k * 70, 560) + 'ms'); });
+        if (still) ch.setAttribute('data-tn-in', ''); else io.observe(ch);
+      });
+    };
+    prime();
+    new MutationObserver(prime).observe(sec, { childList: true, subtree: true });
+    addEventListener('scroll', () => {                         // nothing stays hidden once you are past the story
+      if (sec.getBoundingClientRect().bottom < innerHeight * 0.6) $$('#about .ch:not([data-tn-in])').forEach(ch => ch.setAttribute('data-tn-in', ''));
+    }, { passive: true });
+
+    // the year: the first time it is on screen it spins up from 0000, one digit after another
+    const yr = $('.story__yr', sec);
+    if (yr && !still) {
+      const yo = new IntersectionObserver(es => {
+        if (!es.some(e => e.isIntersecting)) return;
+        yo.disconnect();
+        $$('.dg__c', yr).forEach((c, k) => {
+          const d = c.style.getPropertyValue('--d') || '0';
+          c.style.transition = 'none'; c.style.setProperty('--d', '0'); void c.offsetHeight;
+          c.style.transition = `transform 1.25s cubic-bezier(.65,0,.2,1) ${k * 110}ms`;
+          c.style.setProperty('--d', d);
+          setTimeout(() => { c.style.transition = ''; }, 1500 + k * 110);
+        });
+      }, { threshold: 0.4 });
+      yo.observe(yr);
+    }
+
+    // a new chapter: the digits tick, the date settles, the counter rolls
+    let lastCh = sec.getAttribute('data-ch');
+    new MutationObserver(() => {
+      const ch = sec.getAttribute('data-ch');
+      if (ch === lastCh) return;
+      lastCh = ch;
+      $$('.dg', sec).forEach((g, k) => play(g,
+        [{ transform: 'translateY(-.07em)', opacity: .35, filter: 'blur(3px)' }, { transform: 'none', opacity: 1, filter: 'blur(0)' }],
+        { duration: 620, delay: k * 55, easing: soft, fill: 'backwards' }));
+      play($('.story__when', sec),
+        [{ opacity: 0, transform: 'translateY(.6em)', letterSpacing: '.32em' }, { opacity: 1, transform: 'none', letterSpacing: '.12em' }],
+        { duration: 640, easing: soft });
+      play($('.story__count', sec),
+        [{ opacity: 0, transform: 'translateY(.7em)' }, { opacity: 1, transform: 'none' }],
+        { duration: 480, easing: soft });
+    }).observe(sec, { attributes: true, attributeFilter: ['data-ch'] });
+
+    // the heading lights up once it is on screen
+    const h2 = $('.story__h', sec);
+    if (h2) {
+      if (still) h2.setAttribute('data-tn-lit', '');
+      else { const ho = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { ho.disconnect(); setTimeout(() => h2.setAttribute('data-tn-lit', ''), 250); } }, { threshold: 0.6 }); ho.observe(h2); }
+    }
+  }
+  if (IS_HOME && !EMBED) safe('story motion', initStoryMotion);
+
+
   /* ================================================================== the ability card (home page) */
   if (IS_HOME && !EMBED) safe('card', initCard);
 

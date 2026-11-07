@@ -397,3 +397,40 @@ main .eyebrow, html[data-mode=dark] main .eyebrow {
   font-size: .875rem; font-weight: 500; letter-spacing: -.005em; color: rgba(var(--fg-rgb), .6);
 }
 main .eyebrow::before, main .eyebrow:before { display: none; }
+
+/* ------------------------------------------------------------ my story: chapters arrive as you read them */
+#about .ch[data-tn-ch] [data-tn-s] {
+  opacity: 0; transform: translate3d(0, .9rem, 0); filter: blur(5px);
+  transition: opacity .7s var(--e-soft), transform .9s var(--e-soft), filter .7s var(--e-soft);
+  transition-delay: var(--tn-d, 0ms);
+}
+#about .ch[data-tn-in] [data-tn-s] { opacity: 1; transform: none; filter: none; }
+/* the chapter you are reading: its date turns gold, its title leans in */
+#about .ch .ch__date { transition: color .45s ease; }
+#about .ch.on .ch__date { color: #b8904f; }
+html[data-mode=dark] #about .ch.on .ch__date { color: #D6B26E; }
+#about .ch.on[data-tn-in] .ch__t { transform: translate3d(.35rem, 0, 0); transition: transform .6s var(--e-spring), opacity .7s var(--e-soft), filter .7s var(--e-soft); }
+/* the bar under the year glides to each chapter instead of jumping */
+#about .story__bar b { transition: transform .7s var(--e-soft); }
+#about .story__count { display: inline-block; }
+/* "How I got here.": a gold light passes through it and a short stroke draws underneath */
+#about .story__h { position: relative; }
+#about .story__h[data-tn-lit] {
+  background: linear-gradient(100deg, var(--foreground) 38%, #f3dfb0 47%, #D6B26E 50%, var(--foreground) 61%);
+  background-size: 260% 100%; background-position: 100% 0;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: tnLight 2.2s var(--e-soft) both;
+}
+#about .story__h::after {
+  content: ""; position: absolute; left: .02em; bottom: -.18em; width: 2.4em; height: .07em; border-radius: 1em;
+  background: linear-gradient(90deg, #a98747, #D6B26E 55%, #f3dfb0); transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform 1.1s var(--e-soft) .4s;
+}
+#about .story__h[data-tn-lit]::after { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) {
+  #about .ch[data-tn-ch] [data-tn-s] { transform: none !important; filter: none !important; transition: opacity .3s ease; transition-delay: 0ms; }
+  #about .ch.on[data-tn-in] .ch__t { transform: none; }
+  #about .story__bar b { transition: none; }
+  #about .story__h[data-tn-lit] { animation: none; background: none; color: var(--foreground); }
+  #about .story__h::after { transition: none; }
+}
