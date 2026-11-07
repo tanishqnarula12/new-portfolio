@@ -8,16 +8,9 @@
     pointer-events: auto; background: transparent;
     transition: background .35s ease, box-shadow .35s ease, opacity .35s ease, translate .45s var(--e-soft);
   }
-  /* once you scroll, the bar becomes a material the page slides under, with a soft edge instead of a rule */
-  .hdr.stuck {
-    background: rgba(var(--bg-rgb), .72);
-    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
-    box-shadow: 0 1px 0 rgba(var(--fg-rgb), .06), 0 10px 24px -18px rgba(0, 0, 0, .35);
-  }
-  html[data-mode=dark] .hdr.stuck { background: rgba(17, 17, 17, .7); box-shadow: 0 1px 0 rgba(255, 255, 255, .06), 0 10px 24px -18px rgba(0, 0, 0, .8); }
-  @media (prefers-reduced-transparency: reduce) {
-    .hdr.stuck { background: var(--background); -webkit-backdrop-filter: none; backdrop-filter: none; }
-  }
+  /* once you scroll, a plain solid bar with a hairline, as on the reference */
+  .hdr.stuck { background: var(--background); box-shadow: 0 1px 0 rgba(var(--fg-rgb), .08); }
+  html[data-mode=dark] .hdr.stuck { background: #111; box-shadow: 0 1px 0 rgba(255, 255, 255, .08); }
   .hdr .hdr__in, html[data-mode=dark] .hdr .hdr__in, .hdr.stuck .hdr__in, html[data-mode=dark] .hdr.stuck .hdr__in {
     max-width: var(--container-shell); width: 100%; margin-inline: auto;
     background: transparent; border: 0; border-radius: 0; box-shadow: none;
@@ -387,3 +380,12 @@ html.tn-return .loader { display: none !important; }
 }
 .fig__card:active { scale: .97; transition: scale .1s ease-out; }
 @media (prefers-reduced-motion: reduce) { .pill:active .pill__in, .chip:active, .holo__x:active, .fig__card:active { transform: none; scale: 1; } }
+
+/* ------------------------------------------------------------ "View My Work": a plain outlined button, no frosted glass */
+.pill--outline .pill__in, html[data-mode=dark] .pill--outline .pill__in {
+  background: transparent; border: 1px solid rgba(var(--fg-rgb), .22); box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--foreground);
+}
+.pill--outline:hover .pill__in, html[data-mode=dark] .pill--outline:hover .pill__in {
+  background: rgba(var(--fg-rgb), .06); border-color: rgba(var(--fg-rgb), .35); box-shadow: none;
+}
