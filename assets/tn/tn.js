@@ -552,6 +552,9 @@
       post({ wall: 'go', to });
     }, true);
     function closePanel() { D.getElementById('rn')?.classList.remove('open'); root.classList.remove('rn-lock'); $('#rnMenu')?.setAttribute('aria-expanded', 'false'); }
+    // the room is drawn and can be shown: tell the home page now, not when every image and video header has arrived
+    const ready = () => post({ wall: 'ready' });
+    if (D.readyState === 'loading') addEventListener('DOMContentLoaded', ready, { once: true }); else ready();
     addEventListener('keydown', e => { if (e.key === 'Escape' && !W.__tnLb && !$('#tq:not([hidden])') && !$('.lb.open, #lb.open') && !D.getElementById('rn')?.classList.contains('open')) post({ wall: 'close' }); });
     let liveT = 0;
     addEventListener('message', e => {
@@ -676,9 +679,19 @@
       const f = D.createElement('iframe');
       f.src = DOORS[i].route + '?embed'; f.title = DOORS[i].title; f.tabIndex = -1;
       f.setAttribute('allow', 'autoplay; fullscreen'); f.setAttribute('allowfullscreen', '');
-      f.addEventListener('load', () => { ready[i] = true; toFrame(i, modeMsg()); if (warmed.has(i)) toFrame(i, { wall: 'warm' }); W.dispatchEvent(new CustomEvent('tn:room', { detail: i })); }, { once: true });
+      f.addEventListener('load', () => roomReady(i), { once: true });
       frames[i] = f; wall.appendChild(f);
     }
+    // a room is ready as soon as its page is drawn (it says so itself); the frame's load event is only the fallback
+    function roomReady(i) {
+      if (ready[i]) return;
+      ready[i] = true; toFrame(i, modeMsg()); if (warmed.has(i)) toFrame(i, { wall: 'warm' });
+      W.dispatchEvent(new CustomEvent('tn:room', { detail: i }));
+    }
+    addEventListener('message', e => {
+      if (e.origin !== location.origin || !e.data || e.data.wall !== 'ready') return;
+      const i = frames.findIndex(f => f && f.contentWindow === e.source); if (i >= 0) roomReady(i);
+    });
     const warmed = new Set();
     const warmRoom = i => { if (i < 0 || warmed.has(i)) return; warmed.add(i); if (ready[i]) toFrame(i, { wall: 'warm' }); };
     new MutationObserver(() => frames.forEach((f, i) => f && toFrame(i, modeMsg()))).observe(root, { attributes: true, attributeFilter: ['data-mode'] });
@@ -689,8 +702,9 @@
         const k = order.find(x => !frames[x]); if (k === undefined) return;
         loadRoom(k);
         let moved = false;
-        const next = () => { if (moved) return; moved = true; W.requestIdleCallback ? W.requestIdleCallback(step, { timeout: 1200 }) : setTimeout(step, 250); };
-        frames[k].addEventListener('load', next, { once: true }); setTimeout(next, 3500);
+        const next = () => { if (moved) return; moved = true; removeEventListener('tn:room', mine); W.requestIdleCallback ? W.requestIdleCallback(step, { timeout: 800 }) : setTimeout(step, 150); };
+        const mine = e => { if (e.detail === k) next(); };
+        if (ready[k]) next(); else { addEventListener('tn:room', mine); setTimeout(next, 2500); }
       };
       step();
     }
