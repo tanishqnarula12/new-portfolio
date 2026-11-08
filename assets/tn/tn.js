@@ -1825,6 +1825,13 @@
       return { L, T, w, h };
     }
     const fly = (r, b) => `translate(${(r.left + r.width / 2) - (b.L + b.w / 2)}px,${(r.top + r.height / 2) - (b.T + b.h / 2)}px) scale(${r.width / b.w},${r.height / b.h})`;
+    // the screen's own video back into its screen, as it was
+    function goHome(v) {
+      const h = v.__home; if (!h) return;
+      v.controls = false;
+      if (h.style === null) v.removeAttribute('style'); else v.setAttribute('style', h.style);
+      if (h.next && h.next.parentNode === h.parent) h.parent.insertBefore(v, h.next); else h.parent.appendChild(v);
+    }
     function viewerVideo(src, poster) {
       const v = D.createElement('video');
       // attributes as well as properties: iOS reads the attributes when deciding whether a video may play inline
@@ -1842,17 +1849,19 @@
       hd.className = 'tnv__hd';
       box.insertBefore(hd, el);
       try { const p = hd.play(); if (p && p.catch) p.catch(() => {}); hd.pause(); } catch (x) {}   // unlocked inside the tap, held until needed
-      const LEAD = .8, t0 = performance.now();
-      let ready = false, swapped = false, raf = 0;
+      const t0 = performance.now();
+      let lead = .8, ready = false, swapped = false, raf = 0;
       const alive = () => cur === mine && hd.isConnected && el.isConnected;
-      const aim = () => { if (!hd.duration) return; ready = false; try { hd.currentTime = Math.min(el.currentTime + LEAD, Math.max(0, hd.duration - .1)); } catch (x) {} };
+      // seek a little ahead of the one on show; each time it gets there first (a slow connection), aim further ahead
+      const aim = () => { if (!hd.duration) return; ready = false; try { hd.currentTime = Math.min(el.currentTime + lead, Math.max(0, hd.duration - .1)); } catch (x) {} };
+      const reaim = () => { lead = Math.min(lead * 2, 6); aim(); };
       hd.addEventListener('loadedmetadata', aim, { once: true });
       hd.addEventListener('seeked', () => { ready = true; });
       const swap = () => {
         if (swapped || !alive()) return; swapped = true;
         hd.controls = true; mine.live = hd;
-        el.style.transition = 'opacity .18s ease'; el.style.opacity = '0';
-        setTimeout(() => { if (el.isConnected) { el.pause(); el.removeAttribute('src'); try { el.load(); } catch (x) {} el.remove(); } }, 220);
+        el.style.transition = 'opacity .18s ease'; el.style.opacity = '0'; el.style.pointerEvents = 'none';
+        setTimeout(() => { if (cur === mine && el.isConnected && el.parentNode === box) { el.pause(); goHome(el); } }, 220);
       };
       const watch = () => {
         raf = 0;
@@ -1865,7 +1874,8 @@
           } else if (a >= b - .04 && a < b + .3) {                    // the one on show has reached the frame waiting below
             const p = hd.play(); if (p && p.then) p.then(swap, () => {}); else swap();
             return;
-          } else if (a > b + .3 || a < b - LEAD - 1) aim();          // it skipped past (a seek, or the preview looped): aim again
+          } else if (a > b + .3) reaim();                             // it got there first: aim further ahead
+          else if (a < b - lead - 1) aim();                           // it went back (a seek, or the preview looped): aim again
         }
         raf = requestAnimationFrame(watch);
       };
@@ -1883,13 +1893,14 @@
         // takes over at the same frame once it can play. Waiting for the big file first is what made it slow.
         const inline = v0.currentSrc || v0.getAttribute('src') || v0.src;
         const full = inline.replace(/-(?:sd|m)\.mp4(?=$|\?)/, LIGHT() ? '-sd.mp4' : '.mp4');
-        el = viewerVideo(inline, v0.poster); el.controls = true;
-        const t = v0.currentTime || 0;
-        // start playing inside the tap itself: a play() that comes from the tap is allowed even when the phone blocks
-        // autoplay (iPhone Low Power Mode, data saver); the moment it carries on from is set once the length is known
+        // the screen's own video moves into full size, still playing: a moved video keeps what it has downloaded,
+        // so there is nothing to load and it carries on from the very frame. It goes back into its screen on close.
+        el = v0; el.__home = { parent: v0.parentNode, next: v0.nextSibling, style: v0.getAttribute('style') };
+        el.controls = true;
+        // play inside the tap itself: a play() that comes from the tap is allowed even when the phone blocks
+        // autoplay (iPhone Low Power Mode, data saver)
         const go = () => { const p = el.play(); if (p && p.catch) p.catch(() => {}); };
         el.__go = () => { go(); if (full !== inline) sharpen(el, full); };   // called as soon as it is in the page, still inside the tap
-        el.addEventListener('loadedmetadata', () => { try { if (t && t < el.duration - .5) el.currentTime = t; } catch (x) {} if (el.paused) go(); }, { once: true });
         if (v0.videoWidth) ar = v0.videoWidth / v0.videoHeight;
       } else if (kind === 'image') {
         const i0 = s.querySelector('img');
@@ -1909,7 +1920,7 @@
       if (el.__go) el.__go();
       $('b', cap).textContent = titleOf(s); $('span', cap).textContent = subOf(s);
       lb.setAttribute('aria-label', titleOf(s));
-      if (v0) v0.pause();
+      if (v0 && v0 !== el) v0.pause();
       W.__tnLb = true;
       const b = place(cur);
       lb.hidden = false; root.classList.add('tnv-open'); holdScroll(true);
@@ -1921,16 +1932,17 @@
     function close() {
       if (!cur) return;
       const c = cur; cur = null;
-      const lv = c.live && c.live.isConnected ? c.live : box.querySelector('video:not(.tnv__hd)');
+      const lv = c.live && c.live.isConnected ? c.live : null;
       // the screen carries on from where full size left off (its light copy may be a shorter preview)
-      if (lv && c.v0) { try { const d = c.v0.duration; if (!d || lv.currentTime < d - .2) c.v0.currentTime = lv.currentTime; } catch (x) {} }
+      if (lv && c.v0 && lv !== c.v0) { try { const d = c.v0.duration; if (!d || lv.currentTime < d - .2) c.v0.currentTime = lv.currentTime; } catch (x) {} }
       $$('.tnv__hd', box).forEach(v => { if (v !== lv) { v.pause(); v.removeAttribute('src'); try { v.load(); } catch (x) {} } });   // stop loading what was never shown
       lb.classList.remove('on');
       let closed = false;
       const done = () => {
         if (closed) return; closed = true;
         box.getAnimations().forEach(a => a.cancel());
-        $$('video', box).forEach(v => { v.pause(); v.removeAttribute('src'); try { v.load(); } catch (x) {} });
+        if (c.v0) { delete c.v0.__go; if (c.v0.parentNode === box) goHome(c.v0); }   // the screen's own video, back in its screen
+        $$('video', box).forEach(v => { v.pause(); v.removeAttribute('src'); try { v.load(); } catch (x) {} });   // only the full-quality copy is left here
         lb.hidden = true; box.replaceChildren(); c.s.style.opacity = '';
         root.classList.remove('tnv-open'); holdScroll(false); W.__tnLb = false;
         if (W.__pickVideo) W.__pickVideo(); else if (c.wasPlaying) c.v0.play().catch(() => {});
