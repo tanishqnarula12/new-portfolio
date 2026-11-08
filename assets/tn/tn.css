@@ -332,10 +332,21 @@ html.embed body.ready, html.embed body { overflow-x: clip; }
 
 /* ------------------------------------------------------------ walking through a door, and coming back */
 html.tn-walking .door-cursor { opacity: 0 !important; }
+html.tn-walking .totop, html.tn-walking .ck { opacity: 0 !important; pointer-events: none !important; transition: opacity .2s ease; }
+/* the headers step away for the whole walk, even when React redraws them (going back re-renders the header) */
+html.tn-walking .hdr { opacity: 0; translate: 0 -100%; }
+html.tn-walking .mob-hdr { opacity: 0; pointer-events: none; transform: translateY(-100%); }
+html.tn-walking .cord { opacity: 0; pointer-events: none; }
 html.tn-walking #works .doorway { cursor: default; }
 .tn-veil { z-index: 130; transition: opacity .3s ease, visibility 0s linear .3s; }
 .tn-veil.on { transition: opacity .12s ease; }
 html.tn-return .loader { display: none !important; }
+/* the rooms, loaded inside the home page behind their doors (tn.js): one opens out of the doorway's dark */
+.tn-wall { z-index: 125; background: #050505; transition: none; contain: strict; transform-origin: 50% 46%; }
+.tn-wall.on { opacity: 1; visibility: visible; transition: none; }
+.tn-wall.tn-live { pointer-events: auto; }
+.tn-wall iframe { transition: none; background: transparent; }
+.tn-wall.on iframe.cur { opacity: 1; visibility: visible; }
 
 /* ------------------------------------------------------------ things arrive as you reach them */
 [data-tn-r] {

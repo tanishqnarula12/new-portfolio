@@ -534,22 +534,40 @@
     const post = m => { try { parent.postMessage(m, location.origin); } catch (e) {} };
     addEventListener('click', e => {
       const a = e.target.closest('a[href]');
-      if (!a || e.defaultPrevented || a.target === '_blank' || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (!a || e.defaultPrevented || a.target === '_blank' || a.hasAttribute('download') || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       let u; try { u = new URL(a.getAttribute('href'), location.href); } catch (x) { return; }
       if (u.origin !== location.origin) return;
       if (u.pathname === location.pathname && u.hash && !u.hash.startsWith('#works')) return;   // an anchor inside the room
       e.preventDefault(); e.stopPropagation();
+      closePanel();                                            // the phone menu, if it was open, is shut for next time
       if ((u.pathname === '/' || u.pathname === '') && (!u.hash || u.hash === '#works')) post({ wall: 'close' });
       else post({ wall: 'go', to: u.pathname + u.hash });
     }, true);
-    addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#tq:not([hidden])') && !$('.lb.open, #lb.open')) post({ wall: 'close' }); });
+    // the room's own menu (buttons, not links): the home page holding the room takes it from here
+    addEventListener('click', e => {
+      const b = e.target.closest('[data-nav]'); if (!b || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const to = b.dataset.nav; if (to === 'top' || b.hasAttribute('aria-current')) return;
+      e.preventDefault(); e.stopPropagation();
+      closePanel();
+      post({ wall: 'go', to });
+    }, true);
+    function closePanel() { D.getElementById('rn')?.classList.remove('open'); root.classList.remove('rn-lock'); $('#rnMenu')?.setAttribute('aria-expanded', 'false'); }
+    addEventListener('keydown', e => { if (e.key === 'Escape' && !W.__tnLb && !$('#tq:not([hidden])') && !$('.lb.open, #lb.open') && !D.getElementById('rn')?.classList.contains('open')) post({ wall: 'close' }); });
+    let liveT = 0;
     addEventListener('message', e => {
       if (e.source !== parent || !e.data) return;
       const m = e.data;
       if (m.wall === 'mode') { if (m.mode === 'dark') root.dataset.mode = 'dark'; else delete root.dataset.mode; }
-      if (m.wall === 'enter') { root.classList.remove('out'); scrollTo(0, 0); requestAnimationFrame(() => root.classList.add('in')); }
-      if (m.wall === 'exit') { root.classList.add('out'); root.classList.remove('in'); $$('video').forEach(v => v.pause()); }
+      if (m.wall === 'enter') {
+        root.classList.remove('out'); scrollTo(0, 0); requestAnimationFrame(() => root.classList.add('in'));
+        // the first recording starts as the room opens, not after its entrance has finished
+        clearTimeout(liveT); liveT = setTimeout(() => { W.__live = true; W.__pickVideo && W.__pickVideo(); }, 260);
+      }
+      if (m.wall === 'exit') { clearTimeout(liveT); W.__live = false; root.classList.add('out'); root.classList.remove('in'); $$('video').forEach(v => v.pause()); }
       if (m.wall === 'reset') root.classList.remove('out', 'in');
+      if (m.wall === 'top') scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' });
+      // someone is reaching for this room's door: start buffering its first recording (the light copy: about 1 MB)
+      if (m.wall === 'warm') { const v = $('#stack video'); if (v && /-m\.mp4/.test(v.currentSrc || v.src) && v.preload !== 'auto') v.preload = 'auto'; }
     });
   }
 
@@ -636,24 +654,54 @@
       const l = D.createElement('link'); l.rel = 'prefetch'; l.href = DOORS[i].route; D.head.appendChild(l);
       try { fetch(DOORS[i].route, { credentials: 'same-origin', priority: 'low' }).catch(() => {}); } catch (x) {}   // Safari ignores rel=prefetch
     }
-    addEventListener('pointerover', e => prefetch(indexOf(e.target)), { passive: true });
-    addEventListener('pointerdown', e => prefetch(indexOf(e.target)), { passive: true });
     // the zoom is one big layer: build it as soon as a finger or the mouse reaches a door, not on the first zoom frame
-    const ready = e => { const i = indexOf(e.target), s = sec(); if (i >= 0 && s && !s.style.willChange) { s.style.willChange = 'transform'; s.classList.add('tn-armed'); } };
-    addEventListener('pointerover', ready, { passive: true }); addEventListener('pointerdown', ready, { passive: true });
-    try {
-      if (HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) {
-        const sr = D.createElement('script'); sr.type = 'speculationrules';
-        sr.textContent = JSON.stringify({ prerender: [{ source: 'list', urls: DOORS.map(d => d.route), eagerness: 'moderate' }] });
-        D.head.appendChild(sr);
-      }
-    } catch (x) {}
+    const arm = e => { const i = indexOf(e.target), s = sec(); if (i >= 0 && s && !s.style.willChange) { s.style.willChange = 'transform'; s.classList.add('tn-armed'); } };
+    addEventListener('pointerover', arm, { passive: true }); addEventListener('pointerdown', arm, { passive: true });
+
+    /* ---------------------------------------------------------------- the rooms live inside this page
+       As on the reference: every room loads once, quietly, in a frame behind its door while you stand at the wall.
+       Walking through a door opens that room, already drawn, out of the dark of the doorway, and leaving it you
+       back out and the door swings shut. No page loads in between, so nothing can freeze, and a link from one room
+       to another backs you out of one door and walks you in through the next. A room that isn't loaded yet when
+       the walk ends is loaded as a page instead. */
+    const wall = D.createElement('div');
+    wall.className = 'wallv tn-wall'; wall.id = 'tnWall';
+    D.body.appendChild(wall);
+    const frames = [], ready = [], TITLE = D.title;
+    let cur = -1, inWall = false, pushed = false, afterLeave = null;
+    const modeMsg = () => ({ wall: 'mode', mode: root.dataset.mode === 'dark' ? 'dark' : 'light' });
+    const toFrame = (i, m) => { try { frames[i]?.contentWindow?.postMessage(m, location.origin); } catch (x) {} };
+    function loadRoom(i) {
+      if (i < 0 || !DOORS[i] || frames[i]) return;
+      const f = D.createElement('iframe');
+      f.src = DOORS[i].route + '?embed'; f.title = DOORS[i].title; f.tabIndex = -1;
+      f.setAttribute('allow', 'autoplay; fullscreen'); f.setAttribute('allowfullscreen', '');
+      f.addEventListener('load', () => { ready[i] = true; toFrame(i, modeMsg()); if (warmed.has(i)) toFrame(i, { wall: 'warm' }); W.dispatchEvent(new CustomEvent('tn:room', { detail: i })); }, { once: true });
+      frames[i] = f; wall.appendChild(f);
+    }
+    const warmed = new Set();
+    const warmRoom = i => { if (i < 0 || warmed.has(i)) return; warmed.add(i); if (ready[i]) toFrame(i, { wall: 'warm' }); };
+    new MutationObserver(() => frames.forEach((f, i) => f && toFrame(i, modeMsg()))).observe(root, { attributes: true, attributeFilter: ['data-mode'] });
+    // one room at a time, while the browser is idle, so loading them never gets in the way of the doors
+    function loadAll(first = 0) {
+      const order = [first, ...DOORS.map((_, k) => k).filter(k => k !== first)];
+      const step = () => {
+        const k = order.find(x => !frames[x]); if (k === undefined) return;
+        loadRoom(k);
+        let moved = false;
+        const next = () => { if (moved) return; moved = true; W.requestIdleCallback ? W.requestIdleCallback(step, { timeout: 1200 }) : setTimeout(step, 250); };
+        frames[k].addEventListener('load', next, { once: true }); setTimeout(next, 3500);
+      };
+      step();
+    }
+    // a door someone reaches for loads first
+    const want = e => { const i = indexOf(e.target); if (i >= 0) { loadRoom(i); warmRoom(i); prefetch(i); } };
+    addEventListener('pointerover', want, { passive: true }); addEventListener('pointerdown', want, { passive: true });
     (() => {
       const s = sec(); if (!s) return;
-      const all = () => DOORS.forEach((_, i) => prefetch(i));
+      const all = () => loadAll(0);
       if (!('IntersectionObserver' in W)) return setTimeout(all, 2500);
-      const idle = () => W.requestIdleCallback ? W.requestIdleCallback(all, { timeout: 1500 }) : setTimeout(all, 200);
-      const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); idle(); } }, { rootMargin: '0px 0px 60% 0px' });
+      const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); setTimeout(all, 300); } }, { rootMargin: '0px 0px 60% 0px' });
       io.observe(s);
     })();
 
@@ -680,9 +728,9 @@
     }, true);
 
     function enter(i) {
-      if (busy) return;
+      if (busy || inWall) return;
       const s = sec(), u = units()[i]; if (!s || !u) return;
-      prefetch(i);
+      loadRoom(i); warmRoom(i); prefetch(i);
       hide(i); active = -1; busy = true;
       root.classList.add('tn-walking');
       $('#doorCursor')?.classList.remove('on');
@@ -691,15 +739,128 @@
       const r = reduced();
       setTimeout(() => springs[i].set(WALK), r ? 0 : 40);
       setTimeout(() => through(i), r ? 0 : 120);               // the walk starts while the door is still swinging
-      // the room loads once the walk reaches the dark of the doorway: Safari stops drawing a page the moment the
-      // next one starts loading, so loading any earlier froze the swing half way. The room then opens out of the
-      // dark through the arch (tn.css, view transitions), and it was already fetched when the doors came into view.
-      if (r) go(i);
     }
+    // the page fallback: only when the room's frame couldn't load in time
     function go(i) {
       try { sessionStorage.setItem('tnDoor', String(i)); } catch (e) {}
       location.href = DOORS[i].route;
     }
+    const ARCH = () => MOB.matches ? 'inset(32% 30% 20% 30% round 50vw 50vw 6px 6px)' : 'inset(30% 41% 18% 41% round 50vw 50vw 6px 6px)';
+    const FULL = 'inset(0% 0% 0% 0% round 0px 0px 0px 0px)';
+    // the walk has reached the dark of the doorway: the room opens out of it
+    function handoff(i) {
+      if (ready[i]) return reveal(i);
+      // still loading: rest in the dark of the doorway for a moment, then load it as a page
+      walkIn(i, false); loadRoom(i);
+      let done = false;
+      const on = e => { if (e.detail === i) finish(true); };
+      const finish = ok => { if (done) return; done = true; removeEventListener('tn:room', on); if (ok) reveal(i); else go(i); };
+      addEventListener('tn:room', on);
+      setTimeout(() => finish(false), 1400);
+    }
+    function reveal(i) {
+      const f = frames[i]; if (!f) return go(i);
+      cur = i; inWall = true;
+      frames.forEach((x, k) => x && x.classList.toggle('cur', k === i));
+      wall.classList.add('on', 'tn-live');
+      veil?.classList.remove('on');
+      toFrame(i, { wall: 'enter' });
+      wall.getAnimations().forEach(a => a.cancel());
+      if (!reduced()) wall.animate([{ clipPath: ARCH(), transform: 'scale(1.06)' }, { clipPath: FULL, transform: 'none' }], { duration: 720, easing: 'cubic-bezier(.2,.9,.25,1)' });
+      try {
+        const st = history.state;
+        // past Next's router on purpose: the home page stays the page it is, only the address changes
+        if (!(st && st.tnWall === i)) History.prototype.pushState.call(history, { tnWall: i }, '', DOORS[i].route);
+        pushed = true;
+      } catch (e) { pushed = false; }
+      try { D.title = f.contentDocument?.title || DOORS[i].title; } catch (e) { D.title = DOORS[i].title; }
+      try { f.contentWindow.focus(); } catch (e) {}
+    }
+    // leaving a room: it sinks back into the dark, the arch closes, you back out of the doorway and the door shuts
+    function leaveWall() {
+      if (!inWall) return;
+      inWall = false;
+      const i = cur;
+      D.title = TITLE;
+      toFrame(i, { wall: 'exit' });
+      wall.classList.remove('tn-live');
+      wall.getAnimations().forEach(a => a.cancel());
+      const end = () => { wall.classList.remove('on'); wall.getAnimations().forEach(a => a.cancel()); frames[i]?.classList.remove('cur'); toFrame(i, { wall: 'reset' }); backOut(i); };
+      if (reduced()) return end();
+      const a = wall.animate([{ clipPath: FULL, transform: 'none', opacity: 1 }, { clipPath: ARCH(), transform: 'scale(1.04)', opacity: 0 }],
+        { duration: 460, delay: 140, easing: 'cubic-bezier(.55,0,.8,.3)', fill: 'forwards' });
+      let ended = false; const once = () => { if (!ended) { ended = true; end(); } };
+      a.onfinish = once; setTimeout(once, 900);
+    }
+    function backOut(i) {
+      const s = sec(), u = units()[i]; if (!s || !u) return;
+      cancelAnimationFrame(walkRaf);
+      const m = /translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([\d.]+)\)/.exec(s.style.transform || '');
+      const X = m ? +m[1] : 0, Y = m ? +m[2] : 0, S = m ? +m[3] : 1;
+      const Dur = reduced() ? 1 : 720, t0 = performance.now(), ease = x => 1 - Math.pow(1 - x, 3);
+      let done = false;
+      const finish = () => {
+        if (done) return; done = true;
+        cancelAnimationFrame(walkRaf);
+        s.style.transform = ''; s.style.transformOrigin = '';
+        s.classList.remove('through', 'lift');
+        root.classList.remove('tn-walking');
+        $('.hdr')?.classList.remove('away'); $('.mob-hdr')?.classList.remove('away'); $('#cord')?.classList.remove('away');
+        springs[i].set(0);
+        if (holds) { holds = 1; holdScroll(false); }
+        busy = false;
+        const then = afterLeave; afterLeave = null;
+        if (then) setTimeout(then, 60); else u.querySelector('.doorway')?.focus({ preventScroll: true });
+      };
+      const step = now => {
+        const p = Math.min(1, (now - t0) / Dur), e = ease(p), sc = Math.exp(Math.log(S) * (1 - e));
+        s.style.transform = `translate(${(X * (1 - e)).toFixed(2)}px, ${(Y * (1 - e)).toFixed(2)}px) scale(${sc.toFixed(4)})`;
+        if (p < 1) walkRaf = requestAnimationFrame(step); else finish();
+      };
+      walkRaf = requestAnimationFrame(step);
+      setTimeout(() => springs[i].set(0), reduced() ? 0 : Dur * 0.55);   // the door starts to shut as you clear it
+      setTimeout(finish, Dur + 450);                                     // never left half way if frames stall
+    }
+    function exitRoom(then) {
+      afterLeave = then || null;
+      const st = history.state;
+      if (pushed && st && st.tnWall !== undefined) {
+        pushed = false; history.back();                        // the address goes back to home; popstate backs out
+        setTimeout(() => { if (inWall) leaveWall(); }, 500);
+      } else leaveWall();
+    }
+    // what a room asks for: its navbar, its footer, "Back to the doors" and Escape all come here
+    addEventListener('message', e => {
+      if (e.origin !== location.origin || !e.data || cur < 0 || e.source !== frames[cur]?.contentWindow) return;
+      const m = e.data;
+      if (m.wall === 'close') { if (inWall) exitRoom(null); return; }
+      if (m.wall !== 'go' || !inWall) return;
+      const to = String(m.to || '');
+      let n = -1, href = null;
+      if (/^door:\d$/.test(to)) n = +to.slice(5);
+      else if (to === 'home') href = '/';
+      else if (to === 'about') href = '/photographer/';
+      else if (to === 'contact') href = '/contact/';
+      else {
+        try { const u = new URL(to, location.origin); n = DOORS.findIndex(d => d.route === u.pathname || d.route === u.pathname + '/'); if (n < 0) href = u.pathname + u.search + u.hash; } catch (x) { return; }
+      }
+      if (n === cur) { toFrame(cur, { wall: 'top' }); return; }
+      if (n >= 0 && DOORS[n]) { exitRoom(() => openDoor(n)); return; }
+      const toTop = () => { W.__lenis ? W.__lenis.scrollTo(0, { duration: 1 }) : scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); };
+      if (href === '/' || href === '/#home') { exitRoom(toTop); return; }
+      if (href === '/#about') { exitRoom(() => { const a = D.getElementById('about'); if (a) { const y = a.getBoundingClientRect().top + scrollY; W.__lenis ? W.__lenis.scrollTo(y, { duration: 1.1 }) : scrollTo({ top: y, behavior: 'smooth' }); } }); return; }
+      if (href) location.href = href;                          // another page altogether: just go there
+    });
+    addEventListener('popstate', e => {
+      const st = e.state;
+      if (st && st.tnWall !== undefined && DOORS[st.tnWall]) {   // forward, into a room: walk back in rather than reload
+        e.stopImmediatePropagation();
+        if (!inWall && !busy) openDoor(st.tnWall);
+        return;
+      }
+      if (inWall) { pushed = false; leaveWall(); }
+    });
+    addEventListener('keydown', e => { if (e.key === 'Escape' && inWall) exitRoom(null); });
 
     // walking through: the whole wall scales up around the dark gap beside the open door until it fills the
     // screen, then the room (the page behind the door) takes over from that same dark
@@ -719,20 +880,22 @@
       const ease = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
       const t0 = performance.now(), Dur = reduced() ? 1 : 640;     // a quick walk: nobody should wait to see the work
       let handed = false;
+      const hand = () => { if (!handed) { handed = true; handoff(i); } };
       const step = now => {
         const p = Math.min(1, (now - t0) / Dur), k = ease(p), sc = Math.exp(Math.log(sEnd) * k), f = Math.min(1, k * 1.6);
         s.style.transform = `translate(${(tx * f).toFixed(2)}px, ${(ty * f).toFixed(2)}px) scale(${sc.toFixed(4)})`;
-        // the room is already loading; if it isn't drawn by the end of the walk, the dark of the gap holds the screen
-        if (!handed && (p >= 0.84 || sc >= sEnd / 1.15)) { handed = true; walkIn(i); }
+        // the dark of the gap fills the screen: the room opens out of it
+        if (p >= 0.84 || sc >= sEnd / 1.15) hand();
         if (p < 1) walkRaf = requestAnimationFrame(step);
       };
       walkRaf = requestAnimationFrame(step);
+      setTimeout(hand, Dur + 200);                             // a browser that stops sending frames still gets you in
     }
     let veil = null;
-    function walkIn(i) {
+    function walkIn(i, load = true) {
       if (!veil) { veil = D.createElement('div'); veil.className = 'wallv tn-veil'; veil.setAttribute('aria-hidden', 'true'); D.body.appendChild(veil); }
       veil.classList.add('on');
-      setTimeout(() => go(i), reduced() ? 0 : 110);           // once the dark has landed: the page can rest on it while the room loads
+      if (load) setTimeout(() => go(i), reduced() ? 0 : 110);  // once the dark has landed: the page can rest on it while the room loads
     }
 
     // coming back: you arrive at the wall with that door still open, and it swings shut behind you
@@ -746,42 +909,55 @@
       $('.hdr')?.classList.remove('away'); $('.mob-hdr')?.classList.remove('away'); $('#cord')?.classList.remove('away');
       if (holds) { holds = 1; holdScroll(false); }
       busy = false;
-      const top = s.getBoundingClientRect().top + scrollY;
+      const top = doorY(i);
       W.__lenis?.scrollTo?.(top, { immediate: true });
       scrollTo({ top, behavior: 'auto' });
       springs[i].snap(WALK);
       setTimeout(() => { springs[i].set(0); u.querySelector('.doorway')?.focus({ preventScroll: true }); }, reduced() ? 0 : 520);
     }
-    let back = null;
+    // where the page stands to face door i: the wall's top on a computer; on a phone the wall is pinned and
+    // scrolling slides it along, a quarter of the way per door
+    function doorY(i) {
+      const s = sec(); if (!s) return scrollY;
+      const top = s.getBoundingClientRect().top + scrollY;
+      return MOB.matches ? top + (Math.min(3, Math.max(0, i)) / 3) * Math.max(0, s.offsetHeight - innerHeight) : top;
+    }
+    let back = null, next = null;
     try {
       const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
       back = sessionStorage.getItem('tnDoor'); sessionStorage.removeItem('tnDoor');
-      if (!(location.hash === '#works' || (nav && nav.type === 'back_forward'))) back = null;   // only when you really came back
+      next = sessionStorage.getItem('tnNext'); sessionStorage.removeItem('tnNext');
+      if (!(location.hash === '#works' || (nav && nav.type === 'back_forward'))) back = next = null;   // only when you really came back
     } catch (e) {}
     if (back !== null && DOORS[+back]) {
-      const go = () => closeBehind(+back);
+      const go = () => {
+        closeBehind(+back);
+        // a room's link to another room: out of one door, then in through the next
+        if (next !== null && DOORS[+next] && +next !== +back) { loadRoom(+next); setTimeout(() => openDoor(+next), reduced() ? 0 : 700); }
+      };
       if (D.readyState === 'complete') setTimeout(go, 60); else addEventListener('load', () => setTimeout(go, 60), { once: true });
     }
     // the browser's back button can bring this page back from its cache, frozen mid-walk: swing the door shut
     addEventListener('pageshow', e => {
-      if (!e.persisted) return;
+      if (!e.persisted || inWall) return;                     // a room still open in its frame is where you left it
       let i = -1; try { i = +sessionStorage.getItem('tnDoor'); sessionStorage.removeItem('tnDoor'); } catch (x) {}
       const open = springs.findIndex(sp => sp.get() > 0.5);
       closeBehind(i >= 0 && DOORS[i] ? i : Math.max(0, open));
     });
 
-    // from the nav or a link on this page: go down to the doors, then open the right one and walk in
+    // from the nav or a link on this page: go to the doors, face the right one, then open it and walk in
     function openDoor(i) {
-      if (busy) return;
+      if (busy || inWall || !DOORS[i]) return;
       const s = sec(); if (!s) return;
-      if (MOB.matches) { location.href = DOORS[i].route; return; }
-      prefetch(i);
-      const top = s.getBoundingClientRect().top + scrollY;
-      if (Math.abs(scrollY - top) > 4) { if (W.__lenis) W.__lenis.scrollTo(top, { duration: 0.9 }); else scrollTo({ top, behavior: reduced() ? 'auto' : 'smooth' }); }
+      loadRoom(i); warmRoom(i); prefetch(i);
+      const top = doorY(i);
+      const far = Math.abs(scrollY - top) > 4;
+      if (far) { if (W.__lenis) W.__lenis.scrollTo(top, { duration: 0.9 }); else scrollTo({ top, behavior: reduced() ? 'auto' : 'smooth' }); }
       const t0 = performance.now();
       const settle = () => {
         if (Math.abs(scrollY - top) > 24 && performance.now() - t0 < 1600) return requestAnimationFrame(settle);
-        enter(i);
+        // a phone's wall glides to the door after the scroll lands: let it arrive before the door opens
+        setTimeout(() => enter(i), MOB.matches && far && !reduced() ? 420 : 0);
       };
       requestAnimationFrame(settle);
     }
@@ -791,7 +967,7 @@
       if (!a || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       let u; try { u = new URL(a.getAttribute('href'), location.href); } catch (x) { return; }
       const n = DOORS.findIndex(d => d.route === u.pathname || d.route === u.pathname + '/');
-      if (n < 0 || MOB.matches) return;
+      if (n < 0) return;
       e.preventDefault(); e.stopPropagation();
       if (D.getElementById('navm')?.classList.contains('open')) D.getElementById('navClose')?.click();
       openDoor(n);
@@ -857,7 +1033,28 @@
     if (u.origin !== location.origin || !/^https?:$/.test(u.protocol)) return;
     if (u.pathname === location.pathname) return;            // same page: let the hash scroll
     e.preventDefault(); e.stopPropagation();
+    if (roomSwap(DOORS.findIndex(d => d.route === u.pathname || d.route === u.pathname + '/'))) return;
     location.href = u.href;
+  }, true);
+  // from one room straight to another (a room opened on its own, not inside the home page): go back to the doors,
+  // back out of this one and walk in through the next, the same as from inside the home page
+  function roomSwap(n) {
+    const me = DOORS.findIndex(d => d.route === path || d.route === path + '/');
+    if (EMBED || me < 0 || n < 0 || n === me) return false;
+    try { sessionStorage.setItem('tnDoor', String(me)); sessionStorage.setItem('tnNext', String(n)); } catch (x) { return false; }
+    location.href = '/#works';
+    return true;
+  }
+  // the rooms' own phone menu uses buttons (door:0 … door:3) rather than links
+  addEventListener('click', e => {
+    if (EMBED || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const b = e.target.closest('[data-nav^="door:"]'); if (!b || b.hasAttribute('aria-current')) return;
+    const n = +b.dataset.nav.slice(5);
+    const me = DOORS.findIndex(d => d.route === path || d.route === path + '/');
+    if (me < 0 || n === me || !DOORS[n]) return;
+    e.preventDefault(); e.stopPropagation();
+    const rn = D.getElementById('rn'); rn?.classList.remove('open'); root.classList.remove('rn-lock');
+    roomSwap(n);
   }, true);
 
   /* ================================================================== the story line: from the first chapter's dot to the last */
@@ -1111,7 +1308,12 @@
      the device it sits in, and shrinks back into it on close. A recording carries on from the same moment,
      and a phone design becomes a column you can scroll yourself. Over a screen, the cursor says what a click does. */
   const IS_ROOM = /^\/(web-developer|app-developer|ui-ux-designer|graphic-designer)\/?$/.test(path);
-  if (IS_ROOM && !EMBED) safe('screens', initScreens);
+  // phones, Data Saver and slow connections get the light recordings
+  function LIGHT() {
+    const c = navigator.connection || {};
+    return mq('(max-width: 767.98px)').matches || !!c.saveData || /(^|-)(2g|3g)$/.test(c.effectiveType || '');
+  }
+  if (IS_ROOM) safe('screens', initScreens);
 
   /* ================================================================== the next page is on its way before the click
      Safari holds the old page still while the next one loads, so every page change is only as quick as that
@@ -1141,7 +1343,15 @@
        finished after the last scroll) starts again without anyone having to scroll.
      - If the phone refuses to autoplay (iPhone Low Power Mode, data saver), the screen shows a play sign; a tap
        opens it full size and plays from the tap, which is always allowed. */
-  if (IS_ROOM && !EMBED) safe('videos', () => {
+  if (IS_ROOM) safe('videos', () => {
+    // the page ships the light copy (640px, a 30 s preview of the long ones: about 1 MB each); a big screen on a
+    // good connection swaps in the sharper one before anything plays. Nothing is downloaded whole in advance.
+    if (!LIGHT()) $$('video').forEach(v => {
+      const src = v.getAttribute('src') || ''; if (!/-m\.mp4$/.test(src)) return;
+      const t = v.currentTime, playing = !v.paused;
+      v.src = src.replace(/-m\.mp4$/, '-sd.mp4');
+      if (t) v.currentTime = t; if (playing) v.play().catch(() => {});
+    });
     const playSafe = v => {
       const scr = v.parentElement, p = v.play();
       if (p && p.then) p.then(() => { if (scr) delete scr.dataset.tnBlocked; })
@@ -1153,7 +1363,8 @@
         if (W.__tnLb) return;
         const cards = $$('#stack .card'), vids = $$('#stack .card video');
         let best = null;
-        if (!D.hidden) {
+        // a room waiting in its frame behind a door stays still until you walk in
+        if (!D.hidden && (!EMBED || root.classList.contains('in'))) {
           const seen = [];
           for (const v of vids) {
             const c = v.closest('.card'), scr = v.parentElement;
@@ -1182,7 +1393,7 @@
     setInterval(() => { if (!D.hidden && !W.__tnLb && W.__pickVideo) W.__pickVideo(); }, 1500);
   });
   // the floating "Back to the doors" steps aside once the footer's last line is on screen, so it never sits on the copyright
-  if (!EMBED) safe('back aside', () => {
+  safe('back aside', () => {
     let raf = 0;
     const upd = () => {
       raf = 0;
@@ -1355,7 +1566,7 @@
         el.setAttribute('muted', ''); el.setAttribute('playsinline', ''); el.setAttribute('webkit-playsinline', '');
         el.muted = true; el.loop = true; el.playsInline = true; el.controls = true; el.preload = 'auto';
         // the screens play a lighter copy; full size gets the sharp original
-        el.poster = v0.poster; el.src = (v0.currentSrc || v0.src).replace(/-sd\.mp4(?=$|\?)/, '.mp4');
+        el.poster = v0.poster; el.src = (v0.currentSrc || v0.src).replace(/-(?:sd|m)\.mp4(?=$|\?)/, LIGHT() ? '-sd.mp4' : '.mp4');   // the whole recording
         const t = v0.currentTime || 0;
         // start playing inside the tap itself: a play() that comes from the tap is allowed even when the phone blocks
         // autoplay (iPhone Low Power Mode, data saver); the moment it carries on from is set once the length is known
