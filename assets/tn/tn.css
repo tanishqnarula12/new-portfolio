@@ -306,7 +306,7 @@ html[data-mode=dark] .tq .x-btn { color: rgba(248, 246, 242, .75); background: r
   opacity: 0; transform: translateY(-6px); transition: opacity .4s ease, transform .5s var(--e-soft);
 }
 .tn-toast.on { opacity: 1; transform: none; }
-html.embed .loader, html.embed .cord, html.embed .hdr, html.embed .mob-hdr, html.embed .ck, html.embed .door-cursor { display: none !important; }
+html.embed .loader, html.embed .cord:not(.tn-cord), html.embed .hdr, html.embed .mob-hdr, html.embed .ck, html.embed .door-cursor { display: none !important; }
 html.embed body.ready, html.embed body { overflow-x: clip; }
 
 /* ------------------------------------------------------------ the card's loader (the card waits behind it) */
@@ -345,6 +345,23 @@ html.tn-return .loader { display: none !important; }
 .tn-wall { z-index: 125; background: #050505; transition: none; contain: strict; transform-origin: 50% 46%; }
 .tn-wall.on { opacity: 1; visibility: visible; transition: none; }
 .tn-wall.tn-live { pointer-events: auto; }
+/* the rope in the rooms (tn.js initRope): the home page's own rope, on the pages React doesn't draw it on */
+.tn-cord { position: fixed; top: 0; right: 0; z-index: 105; width: min(100%, 340px); height: 520px; overflow: hidden; pointer-events: none; transition: opacity .4s; }
+.tn-cord .cord__cv { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tn-cord .cord__hit { position: absolute; top: 0; left: 0; width: 64px; height: 64px; margin: -32px 0 0 -32px; padding: 0; border: 0; border-radius: 50%;
+  background: none; pointer-events: auto; touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent; }
+.tn-cord.dragging .cord__hit { cursor: grabbing; }
+.tn-cord .cord__hit:focus-visible { outline: 2px solid #A4552C; outline-offset: 2px; }
+/* out of the way while the room's menu or the full-size viewer is open */
+html.rn-lock .tn-cord, body:has(.rn__panel.open) .tn-cord, html.tnv-open .tn-cord { opacity: 0; }
+html.rn-lock .tn-cord .cord__hit, body:has(.rn__panel.open) .tn-cord .cord__hit, html.tnv-open .tn-cord .cord__hit { pointer-events: none; }
+.tn-rmode { display: none; }
+/* the Web Development menu: React marks the panel open (not the bar), so its lines and wash key off the panel too */
+.rn__panel.open::before { opacity: 1; transform: none; }
+.rn__panel.open .rn__plist a, .rn__panel.open .rn__plist button { opacity: 1; transform: none; transition-delay: calc(var(--i, 0) * 55ms + 90ms); }
+.rn__panel.open .rn__pfoot { opacity: 1; transform: none; }
+/* the floating "Back to the doors" never sits on top of the open menu */
+#rn.open .backd, body:has(.rn__panel.open) .backd, html.rn-lock .backd { opacity: 0 !important; pointer-events: none !important; transition: opacity .2s ease; }
 .tn-wall iframe { transition: none; background: transparent; }
 .tn-wall.on iframe.cur { opacity: 1; visibility: visible; }
 
@@ -450,6 +467,8 @@ html[data-mode=dark] #about .ch.on .ch__date { color: #D6B26E; }
 .tnv__box { position: fixed; overflow: hidden; border-radius: 14px; background: #000; transform-origin: 50% 50%;
   box-shadow: 0 40px 120px -30px rgba(0, 0, 0, .85), 0 0 0 1px rgba(255, 255, 255, .08); }
 .tnv__box > video, .tnv__box > img { display: block; width: 100%; height: 100%; object-fit: contain; background: #000; }
+/* full size: the recording on show and the full-quality one loading under it share the same place */
+.tnv__box > video { position: absolute; inset: 0; }
 .tnv__box--phone { border-radius: 30px; background: var(--sb, #fff); box-shadow: 0 40px 120px -30px rgba(0, 0, 0, .85), 0 0 0 6px #0a0a0a, 0 0 0 7px rgba(255, 255, 255, .12); }
 .tnv__phone { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; background: var(--sb, #fff); outline: none; }
 .tnv__phone::-webkit-scrollbar { display: none; }
@@ -583,7 +602,13 @@ main .chip[style*="min-height"] { align-items: stretch !important; }   /* .chip 
 
 @media (max-width: 768px) {
   /* the cord would hang over every heading on a narrow screen: the switch lives in the header instead (tn.js) */
-  #cord { display: none !important; }
+  #cord, .tn-cord { display: none !important; }
+  /* the rooms get the same sun / moon switch, beside their Menu button */
+  #rn .tn-rmode { display: inline-flex; align-items: center; justify-content: center; flex: none; order: 98; width: 44px; height: 44px; margin-left: auto; padding: 0;
+    border: 1px solid rgba(var(--fg-rgb), .12); border-radius: 999px; background: none; color: var(--fg); cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: transform .15s ease; }
+  #rn .tn-rmode:active { transform: scale(.94); }
+  #rn:has(.tn-rmode) .rn__menu { margin-left: 8px; }
   /* the header bar: solid, not frosted glass */
   .mob-hdr .mob-hdr__in, html[data-mode=dark] .mob-hdr .mob-hdr__in { -webkit-backdrop-filter: none; backdrop-filter: none; }
   .mob-hdr .mob-hdr__in { background: #FBFAF8; border: 1px solid rgba(26, 23, 21, .1); box-shadow: 0 10px 30px -14px rgba(26, 23, 21, .3); }

@@ -100,14 +100,14 @@
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   /* ================================================================== theme: one key, one toggle */
-  function setMode(dark) {
+  function setMode(dark, animate = true) {
     const apply = () => {
       if (dark) root.dataset.mode = 'dark'; else delete root.dataset.mode;
       try { localStorage.setItem(MODE_KEY, dark ? 'dark' : 'light'); } catch (e) {}
       $('#cordHit')?.setAttribute('aria-checked', String(dark));
       $('meta[name="theme-color"]')?.setAttribute('content', dark ? '#1A1818' : '#EEEAE6');
     };
-    if (D.startViewTransition && !reduced()) D.startViewTransition(apply); else apply();
+    if (animate && D.startViewTransition && !reduced()) D.startViewTransition(apply); else apply();
   }
   // React owns the cord when it is running (pull it, or click it). If it is not, a click still switches the light.
   addEventListener('click', e => {
@@ -690,8 +690,11 @@
       W.dispatchEvent(new CustomEvent('tn:room', { detail: i }));
     }
     addEventListener('message', e => {
-      if (e.origin !== location.origin || !e.data || e.data.wall !== 'ready') return;
-      const i = frames.findIndex(f => f && f.contentWindow === e.source); if (i >= 0) roomReady(i);
+      if (e.origin !== location.origin || !e.data) return;
+      const i = frames.findIndex(f => f && f.contentWindow === e.source); if (i < 0) return;
+      if (e.data.wall === 'ready') roomReady(i);
+      // the rope (or the phone's switch) pulled inside a room: the home page follows, and passes it on to the other rooms
+      if (e.data.wall === 'set-mode') { const dark = e.data.mode === 'dark'; if ((root.dataset.mode === 'dark') !== dark) setMode(dark, false); }
     });
     const warmed = new Set();
     const warmRoom = i => { if (i < 0 || warmed.has(i)) return; warmed.add(i); if (ready[i]) toFrame(i, { wall: 'warm' }); };
@@ -991,7 +994,8 @@
 
   /* ================================================================== motion: things arrive as you reach them */
   function initMotion() {
-    if (EMBED) return;
+    // runs inside the rooms opened behind the doors too: their footer ("Hiring, or building something?") arrives
+    // and lights up the same way it does on a room opened on its own
     const groups = [
       ['.sf__eye, .sf__h, .sf__p, .sf__cta, .sf__cols > div', 90],                            // the footer, on every page (its last row always shows)
       ['main#main.shell > div:first-child > *', 80],                                              // About, contact, privacy: their opening lines
@@ -1350,6 +1354,258 @@
     addEventListener('pointerdown', warm, { passive: true });
   });
 
+  /* ================================================================== the light switch in every room
+     The rooms are not React pages, so they never had the home page's rope. This is that rope, ported line for line
+     from the site's own component: the same physics (a 27-point Verlet rope), the same drawing (braided cord, brass
+     cap, wooden pull) and the same switch (pull it past the catch, or tap it, or press Enter). On a phone, where the
+     rope is hidden as it is on the home page, a sun / moon button sits beside the Menu button instead. Inside a door
+     the room tells the home page, which passes the change on to every other room. */
+  function roomToggle() {
+    const dark = root.dataset.mode !== 'dark';
+    setMode(dark);
+    if (EMBED) { try { parent.postMessage({ wall: 'set-mode', mode: dark ? 'dark' : 'light' }, location.origin); } catch (e) {} }
+  }
+  function initRope() {
+    if (D.getElementById('cordHit') || $('.tn-cord')) return;          // a page that has the React rope keeps it
+    const t = D.createElement('div'); t.className = 'cord tn-cord'; t.id = 'tnCord';
+    t.innerHTML = '<canvas class="cord__cv" aria-hidden="true"></canvas><button type="button" class="cord__hit" role="switch" aria-label="Toggle dark mode (pull the cord)"></button>';
+    D.body.appendChild(t);
+    const cv = t.firstChild, hit = t.lastChild, ctx = cv.getContext('2d'); if (!ctx) return;
+    const mark = () => hit.setAttribute('aria-checked', String(root.dataset.mode === 'dark'));
+    mark(); new MutationObserver(mark).observe(root, { attributes: true, attributeFilter: ['data-mode'] });
+    const still = reduced(), h = 1 / 120;
+    let u = 1, m = 300, p = 500, x = 220, f = 46, j = 70, b = 10, y = 200, v = 3.2, g = 1, pts = [], w = 0, k = 0, armed = true, C = -1,
+      M = { x: 0, y: 0 }, S = null, L = null, B = null, downAt = 0, from = null, E = 0, T = 0, A = 0, P = 0;
+    function layout() {
+      let e; const r = parseFloat(getComputedStyle(root).fontSize) || 16, a = innerWidth, i = innerHeight;
+      if (a >= 1024) { e = 4.25 * r; x = Math.min(270, Math.max(190, .3 * i)); f = 72; v = 3.7; g = 1.3; }
+      else if (a >= 640) { e = 5.9 * r; x = Math.min(220, Math.max(160, .2 * i)); f = 62; v = 3.4; g = 1.2; }
+      else { e = 5.7 * r; x = 70; f = 54; v = 3.1; g = 1.1; }
+      j = f + 18; m = Math.min(a, 340); p = Math.round(x + f + 170); t.style.height = `${p}px`;
+      u = Math.min(devicePixelRatio || 1, 2); cv.width = Math.round(m * u); cv.height = Math.round(p * u);
+      const clk = $('.hdr .clock, #rn .rn__clock');
+      if (clk && clk.offsetWidth) e = a >= 1200 ? Math.max(1.2 * r, a - clk.getBoundingClientRect().right - 1.4 * r) : 2.4 * r;
+      const s = m - e;
+      b = (x + j) / 26;
+      if (pts.length) { const d = s - y; for (const q of pts) { q.x += d; q.px += d; } }
+      else for (let n = 0; n <= 26; n++) { const yy = -j + n * b; pts.push({ x: s, y: yy, px: s, py: yy, w: n === 0 ? 0 : n === 26 ? .28 : 1 }); }
+      y = s;
+    }
+    const at = e => { const l = t.getBoundingClientRect(); return { x: e.clientX - l.left, y: e.clientY - l.top }; };
+    function grab(e, l) {
+      wake(); C = l; const r = at(e), a = pts[l];
+      M = { x: r.x - a.x, y: r.y - a.y }; L = B = r; S = { x: a.x, y: a.y }; downAt = performance.now(); from = r; E = 0;
+      t.classList.add('dragging');
+      addEventListener('pointermove', drag, { passive: false }); addEventListener('pointerup', drop); addEventListener('pointercancel', drop);
+    }
+    function drag(e) { if (C < 0) return; e.preventDefault(); B = L; L = at(e); if (from) E = Math.max(E, Math.hypot(L.x - from.x, L.y - from.y)); }
+    function drop() {
+      if (C < 0) return;
+      const e = pts[C];
+      if (L && B && e) { const dx = L.x - B.x, dy = L.y - B.y; e.px = e.x - .5 * dx; e.py = e.y - .5 * dy; }
+      const tap = E < 6 && performance.now() - downAt < 300;
+      C = -1; S = null; L = B = null; t.classList.remove('dragging');
+      removeEventListener('pointermove', drag); removeEventListener('pointerup', drop); removeEventListener('pointercancel', drop);
+      if (tap) yank();
+    }
+    function yank() { wake(); k = 44 * f; if (pts[26]) pts[26].px = pts[26].x + 1.5; }
+    hit.addEventListener('pointerdown', e => { e.preventDefault(); try { hit.setPointerCapture(e.pointerId); } catch (x) {} grab(e, 26); });
+    hit.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); yank(); } });
+    hit.addEventListener('click', e => { e.preventDefault(); if (e.detail === 0) yank(); });   // a click from the keyboard or a screen reader
+    addEventListener('pointerdown', e => {
+      if (e.pointerType !== 'mouse' || e.button !== 0 || C >= 0 || e.target === hit) return;
+      const q = at(e); if (q.x < 0 || q.y < 0 || q.x > m || q.y > p) return;
+      let l = -1, r = 11;
+      for (let n = 2; n <= 26; n++) { if (!pts[n] || pts[n].y < 0) continue; const a = Math.hypot(pts[n].x - q.x, pts[n].y - q.y); if (a < r) { r = a; l = n; } }
+      if (l > 0) { e.preventDefault(); grab(e, l); }
+    });
+    let last = null;
+    addEventListener('pointermove', e => {
+      if (C >= 0 || e.pointerType !== 'mouse') return;
+      const q = at(e);
+      if (q.x < -20 || q.y < -20 || q.x > m + 20 || q.y > p + 20) { last = null; return; }
+      if (last) {
+        wake();
+        const dx = q.x - last.x, dy = q.y - last.y;
+        for (let n = 2; n <= 26; n++) { const a = pts[n]; if (!a) continue; const i = Math.hypot(a.x - q.x, a.y - q.y); if (i < 16) { const s = (1 - i / 16) * .35; a.x += dx * s; a.y += dy * s * .5; } }
+      }
+      last = q;
+    }, { passive: true });
+    function path(c, q) {
+      c.beginPath(); c.moveTo(q[0].x, q[0].y);
+      for (let l = 1; l < q.length - 1; l++) c.quadraticCurveTo(q[l].x, q[l].y, (q[l].x + q[l + 1].x) / 2, (q[l].y + q[l + 1].y) / 2);
+      const l = q[q.length - 1]; c.lineTo(l.x, l.y);
+    }
+    function knob(c) {
+      c.beginPath(); c.moveTo(-3.1, 6.2); c.bezierCurveTo(-3.6, 10.5, -9.6, 13.5, -9.6, 22.5); c.bezierCurveTo(-9.6, 30.5, -5.4, 35, 0, 35);
+      c.bezierCurveTo(5.4, 35, 9.6, 30.5, 9.6, 22.5); c.bezierCurveTo(9.6, 13.5, 3.6, 10.5, 3.1, 6.2); c.closePath();
+    }
+    function pull(c, px, py, ang, shadow) {
+      c.save(); c.translate(px, py); c.rotate(ang - Math.PI / 2); c.scale(g, g);
+      if (shadow) { knob(c); c.fill(); c.fillRect(-3.4, -.5, 6.8, 7.5); c.restore(); return; }
+      const i = c.createLinearGradient(-3.6, 0, 3.6, 0);
+      i.addColorStop(0, '#5b4a2c'); i.addColorStop(.3, '#e8d59e'); i.addColorStop(.55, '#b0924f'); i.addColorStop(1, '#4a3a1f');
+      c.fillStyle = i; c.beginPath();
+      if (typeof c.roundRect === 'function') c.roundRect(-3.5, -.6, 7, 7.6, 1.2); else c.rect(-3.5, -.6, 7, 7.6);
+      c.fill(); c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(-3.5, 2.6, 7, .7); c.fillRect(-3.5, 4.4, 7, .6);
+      knob(c);
+      const n = c.createLinearGradient(-9.6, 0, 9.6, 0);
+      n.addColorStop(0, '#24150c'); n.addColorStop(.22, '#6b3f22'); n.addColorStop(.4, '#a8693d'); n.addColorStop(.58, '#7c4828'); n.addColorStop(.85, '#3b2213'); n.addColorStop(1, '#1d110a');
+      c.fillStyle = n; c.fill();
+      c.save(); knob(c); c.clip(); c.strokeStyle = 'rgba(30,14,6,.28)'; c.lineWidth = .55;
+      for (let q = -3; q <= 3; q++) { c.beginPath(); c.moveTo(2.4 * q - .6, 8); c.bezierCurveTo(2.9 * q + 1, 16, 2.2 * q - 1, 26, 1.6 * q, 35); c.stroke(); }
+      const s = c.createRadialGradient(-3.6, 17, .5, -3.6, 17, 9); s.addColorStop(0, 'rgba(255,226,190,.42)'); s.addColorStop(1, 'rgba(255,226,190,0)');
+      c.fillStyle = s; c.fillRect(-10, 6, 20, 30);
+      const o = c.createLinearGradient(0, 24, 0, 35.5); o.addColorStop(0, 'rgba(0,0,0,0)'); o.addColorStop(1, 'rgba(0,0,0,.35)');
+      c.fillStyle = o; c.fillRect(-10, 6, 20, 30); c.restore();
+      c.fillStyle = 'rgba(255,240,220,.38)'; c.beginPath(); c.ellipse(-4.4, 20.5, 1.1, 5.2, -.08, 0, 2 * Math.PI); c.fill();
+      c.restore();
+    }
+    let asleep = false, calm = 0, lastMove = 0, started = false;
+    function wake() { calm = 0; lastMove = performance.now(); if (asleep && started) { asleep = false; A = 0; T = 0; requestAnimationFrame(frame); } }
+    function follow() {                                            // the point held by the pointer, on a stretchy leash
+      if (C < 0 || !L) return;
+      let ex = L.x - M.x, ey = L.y - M.y;
+      const l = y, r = -j, a = C * b, i = ex - l, n = ey - r, s = Math.hypot(i, n) || 1e-6;
+      let o = s - a;
+      if (o > f) { const d = o - f, c = a + f + .14 * d / (1 + d / 160); ex = l + i / s * c; ey = r + n / s * c; o = f; }
+      const d = Math.max(0, o), c = w; w += (d - w) * .55; k = (w - c) * 60;
+      S = { x: Math.max(14, Math.min(m - 14, ex)), y: Math.min(p - 46, ey) };
+    }
+    function step(e) {
+      P += e;
+      if (C < 0) { k += (-760 * w - 21 * k) * e; w += k * e; }
+      if (w > .8 * f && armed) { armed = false; roomToggle(); try { navigator.vibrate?.(12); } catch (x) {} }   // the catch: the light switches
+      if (w < .22 * f) armed = true;
+      const top = pts[0]; if (top) { top.x = top.px = y; top.y = top.py = -j + w; }
+      const sway = still ? 0 : 16 * Math.sin(.63 * P) + 7 * Math.sin(1.71 * P + 1.3), damp = C >= 0 ? .992 : .9875;
+      for (let n = 1; n <= 26; n++) {
+        if (n === C) continue; const a = pts[n]; if (!a) continue;
+        const i = (a.x - a.px) * damp, o = (a.y - a.py) * damp;
+        a.px = a.x; a.py = a.y; a.x += i + sway * e * e * (n / 26); a.y += o + 4600 * e * e;
+      }
+      if (C >= 0 && S) { const a = pts[C]; if (a) { a.px = a.x; a.py = a.y; a.x = S.x; a.y = S.y; } }
+      for (let it = 0; it < 16; it++) for (let n = 0; n < 26; n++) {
+        const q = pts[n], l = pts[n + 1]; if (!q || !l) continue;
+        const r = n === C ? 0 : q.w, a = n + 1 === C ? 0 : l.w, i = r + a; if (!i) continue;
+        const dx = l.x - q.x, dy = l.y - q.y, o = Math.hypot(dx, dy) || 1e-6, d = (o - b) / o / i;
+        q.x += dx * d * r; q.y += dy * d * r; l.x -= dx * d * a; l.y -= dy * d * a;
+      }
+      for (let n = 1; n <= 26; n++) { const q = pts[n]; if (!q) continue; if (q.x < 14) q.x = 14; else if (q.x > m - 14) q.x = m - 14; if (q.y > p - 46) q.y = p - 46; }
+    }
+    function draw() {
+      ctx.setTransform(u, 0, 0, u, 0, 0); ctx.clearRect(0, 0, m, p);
+      if (pts.length < 2) return;
+      const e = pts[26], q = pts[25]; if (!e || !q) return;
+      const ang = Math.atan2(e.y - q.y, e.x - q.x), sh = parseFloat(getComputedStyle(root).getPropertyValue('--cord-shadow')) || .2;
+      ctx.save(); ctx.translate(7, 11); if ('filter' in ctx) ctx.filter = 'blur(3px)';
+      ctx.strokeStyle = `rgba(0,0,0,${.8 * sh})`; ctx.lineWidth = v + 1; ctx.lineCap = 'round'; path(ctx, pts); ctx.stroke();
+      ctx.fillStyle = `rgba(0,0,0,${sh})`; pull(ctx, e.x, e.y, ang, true); ctx.restore();
+      if ('filter' in ctx) ctx.filter = 'none';
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round'; path(ctx, pts);
+      ctx.strokeStyle = '#6f6455'; ctx.lineWidth = v + 1.3; ctx.stroke(); ctx.strokeStyle = '#d6ccba'; ctx.lineWidth = v; ctx.stroke();
+      const twist = []; let carry = 0;                               // the braid: a short tick every so often along the rope
+      for (let a = 0; a < pts.length - 1; a++) {
+        const i = pts[a], n = pts[a + 1], dx = n.x - i.x, dy = n.y - i.y, d = Math.hypot(dx, dy) || 1e-6;
+        let c = carry; for (; c < d; c += 1.05 * v) twist.push({ x: i.x + dx * c / d, y: i.y + dy * c / d, tx: dx / d, ty: dy / d });
+        carry = c - d;
+      }
+      ctx.lineWidth = Math.max(.6, .24 * v); ctx.strokeStyle = 'rgba(96,82,64,.55)'; ctx.beginPath();
+      for (const s of twist) {
+        if (s.y < -2) continue;
+        const nx = -s.ty, ny = s.tx, r = .5 * v;
+        ctx.moveTo(s.x - nx * r - s.tx * r * .7, s.y - ny * r - s.ty * r * .7); ctx.lineTo(s.x + nx * r + s.tx * r * .7, s.y + ny * r + s.ty * r * .7);
+      }
+      ctx.stroke();
+      ctx.save(); ctx.translate(-(.2 * v), -(.05 * v)); path(ctx, pts); ctx.strokeStyle = 'rgba(255,252,244,.55)'; ctx.lineWidth = .28 * v; ctx.stroke(); ctx.restore();
+      pull(ctx, e.x, e.y, ang, false);
+      hit.style.transform = `translate(${e.x + 20 * Math.cos(ang) * g}px, ${e.y + 20 * Math.sin(ang) * g}px)`;
+    }
+    function frame(now) {
+      if (!A) A = now;
+      const dt = Math.min((now - A) / 1000, .05); A = now;
+      follow(); T += dt;
+      while (T >= h) { step(h); T -= h; }
+      if (C < 0 && now - lastMove > 2500) for (const q of pts) { q.px += (q.x - q.px) * .06; q.py += (q.y - q.py) * .06; }
+      draw();
+      let moving = Math.abs(k) + Math.abs(w);
+      for (const q of pts) moving = Math.max(moving, Math.abs(q.x - q.px) + Math.abs(q.y - q.py));
+      if (C < 0 && moving < .06) { if (++calm > 30) { for (const q of pts) { q.px = q.x; q.py = q.y; } asleep = true; return; } }
+      else calm = 0;
+      requestAnimationFrame(frame);
+    }
+    layout();
+    pts.forEach((q, n) => { q.y = q.py = -j - n * b * .98; q.x = q.px = y + 1.5 * Math.sin(.5 * n); });   // it starts above the screen and drops in
+    asleep = true;
+    let dropped = false;
+    const dropIn = () => { if (dropped) return; dropped = true; started = true; for (const q of pts) q.px = q.x - .45; wake(); };
+    // on its own the room drops the rope in once it has arrived; behind a door, once you walk in
+    if (EMBED) { addEventListener('message', e => { if (e.source === parent && e.data && e.data.wall === 'enter') setTimeout(dropIn, 650); }); }
+    else setTimeout(dropIn, 650);
+    addEventListener('resize', () => { wake(); clearTimeout(layout._t); layout._t = setTimeout(() => { layout(); wake(); }, 100); });
+    new MutationObserver(wake).observe(root, { attributes: true, attributeFilter: ['data-mode'] });
+  }
+  // phones: the rope is hidden there (as on the home page), so the room's header gets a sun / moon button
+  function initRoomSwitch() {
+    const bar = $('#rn .rn__in'); if (!bar || $('.tn-rmode', bar)) return;
+    const MOON = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>';
+    const SUN = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+    const b = D.createElement('button');
+    b.type = 'button'; b.className = 'tn-rmode';
+    const paint = () => { const dark = root.dataset.mode === 'dark'; b.innerHTML = dark ? SUN : MOON; b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode'); };
+    paint(); new MutationObserver(paint).observe(root, { attributes: true, attributeFilter: ['data-mode'] });
+    b.addEventListener('click', roomToggle);
+    const menu = $('#rnMenu', bar);
+    if (menu) bar.insertBefore(b, menu); else bar.appendChild(b);
+  }
+  /* ================================================================== the phone menu closes the way it opened
+     React removes the menu the instant it closes, so it used to vanish. Now a close is held for a moment while the
+     circle that opened it shrinks back into the menu button and the lines lift away, then React closes it. Links to
+     another page don't wait: the page changes anyway. */
+  if (!EMBED) safe('menu close', () => {
+    let closing = false;
+    const AT = 'calc(100% - 42px) 36px';                            // the menu button, where the opening circle grows from
+    function out(m, then) {
+      if (closing) return; closing = true;
+      let done = false;
+      const fin = () => {
+        if (done) return; done = true; closing = false; then();
+        // React has removed it by now; if it is still here (the menu tn.js draws without React), let it open normally next time
+        setTimeout(() => { if (m.isConnected) [m, ...m.querySelectorAll('*')].forEach(el => el.getAnimations().forEach(a => { if (!(W.CSSAnimation && a instanceof CSSAnimation)) a.cancel(); })); }, 60);
+      };
+      if (reduced() || !m.animate) return fin();
+      $$('.navm__top, .navm__item, .navm__bot', m).forEach((el, i) =>
+        el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-12px)' }], { duration: 200, delay: Math.min(i, 9) * 14, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'forwards' }));
+      const a = m.animate([{ clipPath: `circle(160vmax at ${AT})` }, { clipPath: `circle(0px at ${AT})` }], { duration: 440, delay: 90, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'forwards' });
+      a.onfinish = fin; setTimeout(fin, 900);
+    }
+    const isOpen = () => { const m = D.getElementById('navm'); return m && m.classList.contains('open') && !m.hidden ? m : null; };
+    addEventListener('click', e => {
+      const m = isOpen(); if (!m || !m.contains(e.target) || e.defaultPrevented) return;
+      const t = e.target.closest('#navClose, #navStart, button.navm__item, a.navm__item'); if (!t) return;
+      if (t.__tnPass) { t.__tnPass = false; return; }                // the replayed click: let React have it
+      if (t.tagName === 'A') {                                       // only a link on this same page waits for the animation
+        let u; try { u = new URL(t.getAttribute('href'), location.href); } catch (x) { return; }
+        if (u.pathname !== location.pathname) return;
+      }
+      e.preventDefault(); e.stopPropagation();
+      out(m, () => { t.__tnPass = true; t.click(); });
+    }, true);
+    addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      const m = isOpen(), x = D.getElementById('navClose'); if (!m || !x) return;
+      e.preventDefault(); e.stopPropagation();
+      out(m, () => { x.__tnPass = true; x.click(); });
+    }, true);
+  });
+
+  if (IS_ROOM) {
+    const both = () => { safe('rope', initRope); safe('room switch', initRoomSwitch); };
+    // the Web Development page is React's: add to it only once it has hydrated, so the two never disagree
+    if (W.__next_f) { let n = 0; const wait = () => { if (hasFiber($('#rn')) || hasFiber($('#stack .card')) || ++n > 60) both(); else setTimeout(wait, 150); }; wait(); }
+    else both();
+  }
+
   /* ================================================================== recordings: one at a time, and never stuck
      - Only the screen you're looking at plays. Phones decode one or two videos at a time at best; two playing at
        once is what made them stutter or freeze. The static rooms already pick like this (their own script sets
@@ -1569,6 +1825,52 @@
       return { L, T, w, h };
     }
     const fly = (r, b) => `translate(${(r.left + r.width / 2) - (b.L + b.w / 2)}px,${(r.top + r.height / 2) - (b.T + b.h / 2)}px) scale(${r.width / b.w},${r.height / b.h})`;
+    function viewerVideo(src, poster) {
+      const v = D.createElement('video');
+      // attributes as well as properties: iOS reads the attributes when deciding whether a video may play inline
+      v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
+      v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
+      if (poster) v.poster = poster;
+      v.src = src;
+      return v;
+    }
+    // the full-quality recording loads under the one on show and takes over at the same frame: it seeks a little
+    // ahead, waits until the one on show reaches that moment, then starts and the one on top steps aside
+    function sharpen(el, full) {
+      const mine = cur; if (!mine) return;
+      const hd = viewerVideo(full, '');
+      hd.className = 'tnv__hd';
+      box.insertBefore(hd, el);
+      try { const p = hd.play(); if (p && p.catch) p.catch(() => {}); hd.pause(); } catch (x) {}   // unlocked inside the tap, held until needed
+      const LEAD = .8, t0 = performance.now();
+      let ready = false, swapped = false, raf = 0;
+      const alive = () => cur === mine && hd.isConnected && el.isConnected;
+      const aim = () => { if (!hd.duration) return; ready = false; try { hd.currentTime = Math.min(el.currentTime + LEAD, Math.max(0, hd.duration - .1)); } catch (x) {} };
+      hd.addEventListener('loadedmetadata', aim, { once: true });
+      hd.addEventListener('seeked', () => { ready = true; });
+      const swap = () => {
+        if (swapped || !alive()) return; swapped = true;
+        hd.controls = true; mine.live = hd;
+        el.style.transition = 'opacity .18s ease'; el.style.opacity = '0';
+        setTimeout(() => { if (el.isConnected) { el.pause(); el.removeAttribute('src'); try { el.load(); } catch (x) {} el.remove(); } }, 220);
+      };
+      const watch = () => {
+        raf = 0;
+        if (!alive() || swapped) return;
+        if (performance.now() - t0 > 20000) return;                  // a very slow connection: the one on show simply stays
+        if (ready && hd.readyState >= 2) {
+          const a = el.currentTime, b = hd.currentTime;
+          if (el.paused) {                                            // paused (or scrubbed) by hand: match it exactly, then swap
+            if (Math.abs(a - b) > .05) { ready = false; try { hd.currentTime = a; } catch (x) {} } else swap();
+          } else if (a >= b - .04 && a < b + .3) {                    // the one on show has reached the frame waiting below
+            const p = hd.play(); if (p && p.then) p.then(swap, () => {}); else swap();
+            return;
+          } else if (a > b + .3 || a < b - LEAD - 1) aim();          // it skipped past (a seek, or the preview looped): aim again
+        }
+        raf = requestAnimationFrame(watch);
+      };
+      raf = requestAnimationFrame(watch);
+    }
     function open(s) {
       if (cur) return;
       if (!lb) build();
@@ -1576,17 +1878,17 @@
       const kind = v0 ? 'video' : s.querySelector('.phone__vp') ? 'phone' : 'image';
       let el, ar = r0.width / r0.height;
       if (kind === 'video') {
-        el = D.createElement('video');
-        // attributes as well as properties: iOS reads the attributes when deciding whether a video may play inline
-        el.setAttribute('muted', ''); el.setAttribute('playsinline', ''); el.setAttribute('webkit-playsinline', '');
-        el.muted = true; el.loop = true; el.playsInline = true; el.controls = true; el.preload = 'auto';
-        // the screens play a lighter copy; full size gets the sharp original
-        el.poster = v0.poster; el.src = (v0.currentSrc || v0.src).replace(/-(?:sd|m)\.mp4(?=$|\?)/, LIGHT() ? '-sd.mp4' : '.mp4');   // the whole recording
+        // Instant, then sharp: full size starts with the very file the screen was playing (already downloaded, so it
+        // carries on at once from the same moment), while the whole recording at full quality loads underneath and
+        // takes over at the same frame once it can play. Waiting for the big file first is what made it slow.
+        const inline = v0.currentSrc || v0.getAttribute('src') || v0.src;
+        const full = inline.replace(/-(?:sd|m)\.mp4(?=$|\?)/, LIGHT() ? '-sd.mp4' : '.mp4');
+        el = viewerVideo(inline, v0.poster); el.controls = true;
         const t = v0.currentTime || 0;
         // start playing inside the tap itself: a play() that comes from the tap is allowed even when the phone blocks
         // autoplay (iPhone Low Power Mode, data saver); the moment it carries on from is set once the length is known
         const go = () => { const p = el.play(); if (p && p.catch) p.catch(() => {}); };
-        el.__go = go;                                          // called as soon as it is in the page, still inside the tap
+        el.__go = () => { go(); if (full !== inline) sharpen(el, full); };   // called as soon as it is in the page, still inside the tap
         el.addEventListener('loadedmetadata', () => { try { if (t && t < el.duration - .5) el.currentTime = t; } catch (x) {} if (el.paused) go(); }, { once: true });
         if (v0.videoWidth) ar = v0.videoWidth / v0.videoHeight;
       } else if (kind === 'image') {
@@ -1600,7 +1902,7 @@
         el.innerHTML = `<img src="${esc(body.currentSrc || body.src)}" alt="${esc(titleOf(s))} design">`
           + (tab ? `<img class="tnv__tab" src="${esc(tab.currentSrc || tab.src)}" alt="">` : '');
       }
-      cur = { s, kind, ar, v0, wasPlaying: !!v0 && !v0.paused, focus: D.activeElement };
+      cur = { s, kind, ar, v0, live: kind === 'video' ? el : null, wasPlaying: !!v0 && !v0.paused, focus: D.activeElement };
       box.className = 'tnv__box tnv__box--' + kind;
       box.style.setProperty('--sb', getComputedStyle(s).getPropertyValue('--sb').trim() || '#fff');
       box.replaceChildren(el);
@@ -1619,13 +1921,16 @@
     function close() {
       if (!cur) return;
       const c = cur; cur = null;
-      const lv = box.querySelector('video');
-      if (lv && c.v0) { try { c.v0.currentTime = lv.currentTime; } catch (x) {} }
+      const lv = c.live && c.live.isConnected ? c.live : box.querySelector('video:not(.tnv__hd)');
+      // the screen carries on from where full size left off (its light copy may be a shorter preview)
+      if (lv && c.v0) { try { const d = c.v0.duration; if (!d || lv.currentTime < d - .2) c.v0.currentTime = lv.currentTime; } catch (x) {} }
+      $$('.tnv__hd', box).forEach(v => { if (v !== lv) { v.pause(); v.removeAttribute('src'); try { v.load(); } catch (x) {} } });   // stop loading what was never shown
       lb.classList.remove('on');
       let closed = false;
       const done = () => {
         if (closed) return; closed = true;
         box.getAnimations().forEach(a => a.cancel());
+        $$('video', box).forEach(v => { v.pause(); v.removeAttribute('src'); try { v.load(); } catch (x) {} });
         lb.hidden = true; box.replaceChildren(); c.s.style.opacity = '';
         root.classList.remove('tnv-open'); holdScroll(false); W.__tnLb = false;
         if (W.__pickVideo) W.__pickVideo(); else if (c.wasPlaying) c.v0.play().catch(() => {});
