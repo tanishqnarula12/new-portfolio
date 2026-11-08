@@ -570,7 +570,8 @@
       if (m.wall === 'reset') root.classList.remove('out', 'in');
       if (m.wall === 'top') scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' });
       // someone is reaching for this room's door: start buffering its first recording (the light copy: about 1 MB)
-      if (m.wall === 'warm') { const v = $('#stack video'); if (v && /-m\.mp4/.test(v.currentSrc || v.src) && v.preload !== 'auto') v.preload = 'auto'; }
+      // (the light copy is about 1 MB, so it buffers whole; the sharper one only fetches its header)
+      if (m.wall === 'warm') { const v = $('#stack video'); if (v && v.paused) { const light = /-m\.mp4/.test(v.getAttribute('src') || ''); if (v.preload !== 'auto') v.preload = light ? 'auto' : 'metadata'; } }
     });
   }
 
