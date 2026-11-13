@@ -1145,7 +1145,7 @@
   if (IS_HOME && !EMBED) safe('card', initCard);
 
   function initCard() {
-    const CARD_IMG = '/images/profile/tanishq-card.webp';
+    const CARD_IMG = '/images/profile/tanishq-card-v2.webp';
     let layer = null, card = null, lastFocus = null, open = false, loadedOnce = false;
     const tilt = { rx: 0, ry: 0, px: 0, py: 0, lift: 0 };
     const paint = () => {
@@ -1174,7 +1174,7 @@
           <span class="tc__in" aria-hidden="true">
             <span class="tc__face tc__front">
               <span class="tc__top"><span class="tc__badge">TN</span><span>AI · Web · UI/UX</span></span>
-              <span class="tc__win"><i class="tc__grid"></i><i class="tc__ring"></i><img class="tc__me" src="/images/profile/tanishq-card.webp" alt="" decoding="async"><i class="tc__wsh"></i></span>
+              <span class="tc__win"><i class="tc__grid"></i><i class="tc__ring"></i><img class="tc__me" src="/images/profile/tanishq-card-v2.webp" alt="" decoding="async"><i class="tc__wsh"></i></span>
               <span class="tc__name">Tanishq Narula</span>
               <span class="tc__role">Software Developer · AI Builder · Designer</span>
               <i class="tc__rule"></i>
@@ -1319,7 +1319,7 @@
       if (e.target.closest('#holoOpen') || canHover()) { e.preventDefault(); show(); }
     });
     // warm the card's picture once the page has settled, so it opens fully drawn
-    addEventListener('load', () => setTimeout(() => { const i = new Image(); i.decoding = 'async'; i.src = '/images/profile/tanishq-card.webp'; }, 1500), { once: true });
+    addEventListener('load', () => setTimeout(() => { const i = new Image(); i.decoding = 'async'; i.src = '/images/profile/tanishq-card-v2.webp'; }, 1500), { once: true });
   }
 
   /* ================================================================== project screens, full size
